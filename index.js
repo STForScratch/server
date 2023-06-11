@@ -101,7 +101,7 @@ app.post("/web-feedback/", jsonParser, async function (req, res) {
   ) {
     var embed = new EmbedBuilder()
       .setTitle("New Feedback")
-      .setDescription("Feedback has been received via the extension.")
+      .setDescription("Feedback has been received via the website.")
       .addFields(
         {
           name: "Username",
