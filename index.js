@@ -90,6 +90,51 @@ app.post("/create/", jsonParser, async function (req, res) {
   }
 });
 
+app.post("/web-feedback/", jsonParser, async function (req, res) {
+  if (
+    req.body.useragent &&
+    typeof req.body.useragent === "string" &&
+    req.body.username &&
+    typeof req.body.username &&
+    req.body.feedback &&
+    typeof req.body.feedback
+  ) {
+    var embed = new EmbedBuilder()
+      .setTitle("New Feedback")
+      .setDescription("Feedback has been received via the extension.")
+      .addFields(
+        {
+          name: "Username",
+          value: req.body.username,
+          inline: false,
+        },
+        {
+          name: "Feedback",
+          value: req.body.feedback,
+          inline: false,
+        },
+        {
+          name: "Useragent",
+          value: "`" + req.body.useragent + "`",
+          inline: false,
+        },
+      );
+    webhookClient.send({
+      username: "ScratchTools Webserver Moderation (Web Feedback)",
+      avatarURL:
+        "https://raw.githubusercontent.com/STForScratch/ScratchTools/main/extras/icons/beta/beta128.png",
+      embeds: [embed],
+    });
+    res.send({
+      success: true,
+    });
+  } else {
+    res.send({
+      error: "Missing parameters.",
+    });
+  }
+});
+
 app.post("/feedback/", jsonParser, async function (req, res) {
   if (
     req.body.useragent &&
