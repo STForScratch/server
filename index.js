@@ -117,7 +117,7 @@ app.post("/web-feedback/", jsonParser, async function (req, res) {
           name: "Useragent",
           value: "`" + req.body.useragent + "`",
           inline: false,
-        },
+        }
       );
     webhookClient.send({
       username: "ScratchTools Webserver Moderation (Web Feedback)",
@@ -196,11 +196,17 @@ app.post("/feedback/", jsonParser, async function (req, res) {
 
 app.post("/online/", jsonParser, async function (req, res) {
   if (req.body.user && typeof req.body.user === "string") {
-    var userData = await (
-      await fetch(
-        `https://trampoline.turbowarp.org/api/users/${req.body.user}/`
-      )
-    ).json();
+    try {
+      var userData = await (
+        await fetch(
+          `https://trampoline.turbowarp.org/api/users/${req.body.user}/`
+        )
+      ).json();
+    } catch (err) {
+      var userData = {
+        username: req.body.user,
+      };
+    }
     if (userData?.username) {
       var found = await client.db("isonline").collection("users").findOne({
         username: userData.username,
@@ -300,11 +306,17 @@ app.get("/verification/code/", async function (req, res) {
 });
 
 app.get("/status/:username/", async function (req, res) {
-  var userData = await (
-    await fetch(
-      `https://trampoline.turbowarp.org/api/users/${req.params.username}/`
-    )
-  ).json();
+  try {
+    var userData = await (
+      await fetch(
+        `https://trampoline.turbowarp.org/api/users/${req.params.username}/`
+      )
+    ).json();
+  } catch (err) {
+    var userData = {
+      username: req.params.username,
+    };
+  }
   if (userData?.username) {
     var found = await client.db("plus").collection("users").findOne({
       username: userData.username,
@@ -604,11 +616,17 @@ app.get("/all/online/", async function (req, res) {
 });
 
 app.get("/isonline/:username/", async function (req, res) {
-  var userData = await (
-    await fetch(
-      `https://trampoline.turbowarp.org/api/users/${req.params.username}/`
-    )
-  ).json();
+  try {
+    var userData = await (
+      await fetch(
+        `https://trampoline.turbowarp.org/api/users/${req.params.username}/`
+      )
+    ).json();
+  } catch (err) {
+    var userData = {
+      username: req.params.username,
+    };
+  }
   if (userData?.username) {
     var found = await client.db("isonline").collection("users").findOne({
       username: userData.username,
