@@ -49,7 +49,7 @@ const client = new MongoClient(uri, {
 client.connect();
 
 app.get("/", async function (req, res) {
-  res.send("hi");
+  res.send("Currently running.");
 });
 
 app.post("/create/", jsonParser, async function (req, res) {
