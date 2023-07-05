@@ -52,47 +52,66 @@ app.get("/", async function (req, res) {
   res.send("Currently running.");
 });
 
-app.get("/latest/", function(req, res) {
+app.get("/latest/", function (req, res) {
   res.send({
     version: "3.0.0-beta",
     beta: 0,
-  })
-})
+  });
+});
 
-app.get("/isbeta/:username/", async function(req, res) {
+app.get("/isbeta/:username/", async function (req, res) {
   var user = await client.db("beta").collection("users").findOne({
     username: req.params.username.toLowerCase(),
-  })
+  });
   if (user?.beta) {
     res.send({
       beta: true,
-    })
+    });
   } else {
     res.send({
       beta: false,
-    })
-  }
-})
-
-app.get("/beta-joined/", async function(req, res) {
-  if (req.query.privateCode) {
-    fetch(`https://auth.itinerary.eu.org/api/auth/verifyToken?privateCode=${req.query.privateCode}`, { method: 'GET' })
-    .then((response) => response.json())
-    .then(async function(data) {
-        if (data.valid === true && data.redirect === 'https://data.scratchtools.app/beta-joined/') {
-            await client.db("beta").collection("users").findOne({
-              username: data.username.toLowerCase(),
-              beta: true,
-            })
-            res.redirect("https://scratchtools.zip/joined/")
-        } else {
-            res.send("Scratch verification failed.")
-        }
     });
-  } else {
-    res.send("Scratch verification failed.")
   }
-})
+});
+
+app.get("/beta-joined/", async function (req, res) {
+  if (req.query.privateCode) {
+    fetch(
+      `https://auth.itinerary.eu.org/api/auth/verifyToken?privateCode=${req.query.privateCode}`,
+      { method: "GET" }
+    )
+      .then((response) => response.json())
+      .then(async function (data) {
+        if (
+          data.valid === true &&
+          data.redirect === "https://data.scratchtools.app/beta-joined/"
+        ) {
+          await client
+            .db("beta")
+            .collection("users")
+            .updateOne(
+              {
+                username: data.username.toLowerCase(),
+              },
+              {
+                $set: {
+                  username: data.username.toLowerCase(),
+                  beta: true,
+                },
+              },
+              {
+                upsert: true,
+              }
+            );
+          res.redirect("https://scratchtools.zip/joined/");
+        } else {
+          res.send("Scratch verification failed.");
+        }
+      });
+  } else {
+    res.send("Scratch verification failed.");
+  }
+});
 
 app.post("/create/", jsonParser, async function (req, res) {
   if (req.body.features && typeof req.body.features === "string") {
