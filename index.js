@@ -52,6 +52,13 @@ app.get("/", async function (req, res) {
   res.send("Currently running.");
 });
 
+app.get("/latest/", function(req, res) {
+  res.send({
+    version: "3.0.0-beta",
+    beta: 0,
+  })
+})
+
 app.post("/create/", jsonParser, async function (req, res) {
   if (req.body.features && typeof req.body.features === "string") {
     const features = await (
