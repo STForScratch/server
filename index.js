@@ -104,6 +104,7 @@ app.get("/get-token/", async function (req, res) {
         );
       res.send({
         token: token.token,
+        user: token.user
       });
     } else {
       res.send({
