@@ -86,6 +86,17 @@ app.get("/beta-joined/", async function (req, res) {
           data.valid === true &&
           data.redirect === "https://data.scratchtools.app/beta-joined/"
         ) {
+          var user = await client.db("beta").collection("users").findOne({
+            username: data.username.toLowerCase(),
+          });
+          if (!user?.beta) {
+            webhookClient.send({
+              username: "ScratchTools Webserver Moderation (Web Feedback)",
+              content: `🧪 @${data.username} just joined the ScratchTools beta program.`,
+              avatarURL:
+                "https://raw.githubusercontent.com/STForScratch/ScratchTools/main/extras/icons/beta/beta128.png",
+            });
+          }
           await client
             .db("beta")
             .collection("users")
