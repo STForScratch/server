@@ -74,6 +74,45 @@ app.get("/isbeta/:username/", async function (req, res) {
   }
 });
 
+app.get("/get-token/", async function (req, res) {
+  if (
+    ObjectId.isValid(req.query.secret) &&
+    req.query.server === process.env.server
+  ) {
+    var token = await client
+      .db("beta")
+      .collection("tokens")
+      .findOne({
+        _id: new ObjectId(req.query.secret),
+      });
+    if (token && !token.grabbed) {
+      await client
+        .db("beta")
+        .collection("tokens")
+        .updateOne(
+          {
+            _id: new ObjectId(req.query.secret),
+          },
+          {
+            $set: {
+              grabbed: true,
+            },
+          },
+          {
+            upsert: true,
+          }
+        );
+      res.send({
+        token: token.token,
+      });
+    } else {
+      res.send({
+        error: "Authentication failed.",
+      });
+    }
+  }
+});
+
 app.get("/beta-joined/", async function (req, res) {
   if (req.query.privateCode) {
     fetch(
@@ -88,6 +127,13 @@ app.get("/beta-joined/", async function (req, res) {
         ) {
           var user = await client.db("beta").collection("users").findOne({
             username: data.username.toLowerCase(),
+          });
+          var secret = makeId(150);
+          var token = await client.db("beta").collection("tokens").insertOne({
+            user: data.username,
+            token: secret,
+            time: Date.now(),
+            grabbed: false,
           });
           if (!user?.beta) {
             webhookClient.send({
@@ -114,7 +160,9 @@ app.get("/beta-joined/", async function (req, res) {
                 upsert: true,
               }
             );
-          res.redirect("https://scratchtools.zip/joined/");
+          res.redirect(
+            "https://scratchtools.zip/joined/?code=" + token.insertedId
+          );
         } else {
           res.send("Scratch verification failed.");
         }
