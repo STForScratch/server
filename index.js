@@ -55,7 +55,7 @@ app.get("/", async function (req, res) {
 app.get("/latest/", function (req, res) {
   res.send({
     version: "3.0.0-beta",
-    beta: 1,
+    beta: 2,
   });
 });
 
