@@ -114,12 +114,6 @@ wss.on("connection", function (ws) {
         }
       }
     }
-    if (msg.type === "verifyScatt") {
-      if (msg.code && msg.code === process.env.server) {
-        isScatt = true
-        connections.find((el) => el.socket === ws).isScatt = true
-      }
-    }
   })
   ws.on("close", function () {
     events.push({
@@ -127,14 +121,6 @@ wss.on("connection", function (ws) {
       type: "leave",
     })
     var found = connections.find((el) => el.socket === ws)
-    if (found.isScatt) {
-      webhookClient.send({
-        username: "Important Notification",
-        content: `Scatt disconnected from support monitoring system.`,
-        avatarURL:
-          "https://raw.githubusercontent.com/STForScratch/ScratchTools/main/extras/icons/beta/beta128.png",
-      });
-    }
     found = {}
   });
 })
