@@ -144,15 +144,19 @@ wss.on("connection", function (ws) {
                   upsert: true,
                 }
               );
-              ws.send(JSON.stringify({
+            ws.send(
+              JSON.stringify({
                 type: "message",
                 content: `Hey, ${token.user}! Welcome to the ScratchTools support chat. We'd love to help you out with ScratchTools, what do you need? Heads up- we don't always have specialists online. If you can't get the help you need, try some of the other support options.`,
-              }))
+              })
+            );
           } else {
-            ws.send(JSON.stringify({
-              error: "Authentication failed.",
-              endOfWorld: true,
-            }))
+            ws.send(
+              JSON.stringify({
+                error: "Authentication failed.",
+                endOfWorld: true,
+              })
+            );
           }
         }
       }
@@ -169,19 +173,42 @@ wss.on("connection", function (ws) {
 });
 
 app.post("/support/", jsonParser, async function (req, res) {
-  if (
-    req.body.user &&
-    req.body.secret === process.env.server &&
-    req.body.content
-  ) {
+  if (req.body.secret === process.env.server) {
+    if (req.body.type === "message" && req.body.user && req.body.content) {
+      var sockets = connections.filter((el) => el.user === req.body.user);
+      if (sockets.length !== 0) {
+        sockets.forEach(function (socket) {
+          try {
+            socket.socket?.send(
+              JSON.stringify({
+                type: "message",
+                content: req.body.content,
+              })
+            );
+          } catch (err) {}
+        });
+        res.send({
+          success: true,
+        });
+      } else {
+        res.send({
+          error: "Socket not found.",
+        });
+      }
+    } else {
+      res.send({
+        error: "Missing data.",
+      });
+    }
+  } else if (req.body.user && req.body.type === "disableAll") {
     var sockets = connections.filter((el) => el.user === req.body.user);
     if (sockets.length !== 0) {
       sockets.forEach(function (socket) {
         try {
           socket.socket?.send(
             JSON.stringify({
-              type: "message",
-              content: req.body.content,
+              type: "setFeatures",
+              features: "",
             })
           );
         } catch (err) {}
@@ -194,10 +221,40 @@ app.post("/support/", jsonParser, async function (req, res) {
         error: "Socket not found.",
       });
     }
-  } else {
-    res.send({
-      error: "Missing data.",
+  } else if (
+    req.body.user &&
+    req.body.code &&
+    req.body.type === "resetFeatures"
+  ) {
+    var found = await client.db("features").collection("saved").findOne({
+      code: req.body.code,
     });
+    if (found) {
+      var sockets = connections.filter((el) => el.user === req.body.user);
+      if (sockets.length !== 0) {
+        sockets.forEach(function (socket) {
+          try {
+            socket.socket?.send(
+              JSON.stringify({
+                type: "setFeatures",
+                features: found.data.join("."),
+              })
+            );
+          } catch (err) {}
+        });
+        res.send({
+          success: true,
+        });
+      } else {
+        res.send({
+          error: "Socket not found.",
+        });
+      }
+    } else {
+      res.send({
+        error: "Code not found.",
+      });
+    }
   }
 });
 
