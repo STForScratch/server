@@ -77,6 +77,7 @@ wss.on("connection", function (ws) {
           connections.find((el) => el.isScatt === true).socket.send(JSON.stringify({
               message: msg.content,
               user: found.user,
+              type: "message",
             }))
         }
       } else {
@@ -87,6 +88,10 @@ wss.on("connection", function (ws) {
           });
           if (token) {
             found.user = token.user
+            connections.find((el) => el.isScatt === true)?.socket.send(JSON.stringify({
+              user: token.user,
+              type: "join",
+            }))
             await client
               .db("verify")
               .collection("tokens")
@@ -116,6 +121,10 @@ wss.on("connection", function (ws) {
     }
   })
   ws.on("close", function () {
+    connections.find((el) => el.isScatt === true).socket.send(JSON.stringify({
+      user: connections.find((el) => el.socket === ws).user,
+      type: "leave",
+    }))
     connections.find((el) => el.socket === ws) = {}
   });
 })
