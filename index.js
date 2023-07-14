@@ -86,7 +86,12 @@ wss.on("connection", function (ws) {
           });
         }
       } else {
-        if (msg.type === "verify" && msg.token && typeof msg.features === "string" && msg.version) {
+        if (
+          msg.type === "verify" &&
+          msg.token &&
+          typeof msg.features === "string" &&
+          msg.version
+        ) {
           var token = await client.db("verify").collection("tokens").findOne({
             expired: false,
             code: msg.token,
@@ -248,6 +253,26 @@ app.post("/support/", jsonParser, async function (req, res) {
       } else {
         res.send({
           error: "Code not found.",
+        });
+      }
+    } else if (req.body.user && req.body.type === "reload") {
+      var sockets = connections.filter((el) => el.user === req.body.user);
+      if (sockets.length !== 0) {
+        sockets.forEach(function (socket) {
+          try {
+            socket.socket?.send(
+              JSON.stringify({
+                type: "reload",
+              })
+            );
+          } catch (err) {}
+        });
+        res.send({
+          success: true,
+        });
+      } else {
+        res.send({
+          error: "Socket not found.",
         });
       }
     }
