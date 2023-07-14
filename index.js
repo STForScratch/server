@@ -86,7 +86,7 @@ wss.on("connection", function (ws) {
           });
         }
       } else {
-        if (msg.type === "verify" && msg.token && msg.features && msg.version) {
+        if (msg.type === "verify" && msg.token && typeof msg.features === "string" && msg.version) {
           var token = await client.db("verify").collection("tokens").findOne({
             expired: false,
             code: msg.token,
