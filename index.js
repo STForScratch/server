@@ -159,27 +159,34 @@ wss.on("connection", function (ws) {
   });
 });
 
-app.post("/support/", jsonParser, async function(req, res) {
-  if (req.body.user && req.body.secret === process.env.server && req.body.content) {
-    var socket = connections.find((el) => el.user === req.body.user)?.socket
+app.post("/support/", jsonParser, async function (req, res) {
+  if (
+    req.body.user &&
+    req.body.secret === process.env.server &&
+    req.body.content
+  ) {
+    var socket = connections.find((el) => el.user === req.body.user)?.socket;
     if (socket) {
-      socket.send(JSON.stringify({
-        type: "message",
-        content: req.body.content
-      }))
+      socket.send(
+        JSON.stringify({
+          type: "message",
+          content: req.body.content,
+        })
+      );
       res.send({
         success: true,
-      })
+      });
+    } else {
+      res.send({
+        error: "Socket not found.",
+      });
     }
-    res.send({
-      error: "Socket not found.",
-    })
   } else {
     res.send({
-      error: "Missing data."
-    })
+      error: "Missing data.",
+    });
   }
-})
+});
 
 app.get("/events/:code/", function (req, res) {
   if (req.params.code === process.env.server) {
