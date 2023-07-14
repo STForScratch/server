@@ -146,7 +146,7 @@ wss.on("connection", function (ws) {
               );
               ws.send(JSON.stringify({
                 type: "message",
-                content: `Hey, ${token.user}! Welcome to the ScratchTools support chat. We'd love to help you out with ScratchTools, what do you need? Heads up- we do `,
+                content: `Hey, ${token.user}! Welcome to the ScratchTools support chat. We'd love to help you out with ScratchTools, what do you need? Heads up- we don't always have specialists online. If you can't get the help you need, try some of the other support options.`,
               }))
           } else {
             ws.send(JSON.stringify({
