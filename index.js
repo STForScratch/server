@@ -165,14 +165,18 @@ app.post("/support/", jsonParser, async function (req, res) {
     req.body.secret === process.env.server &&
     req.body.content
   ) {
-    var socket = connections.find((el) => el.user === req.body.user)?.socket;
-    if (socket) {
-      socket.send(
-        JSON.stringify({
-          type: "message",
-          content: req.body.content,
-        })
-      );
+    var sockets = connections.filter((el) => el.user === req.body.user);
+    if (sockets.length !== 0) {
+      sockets.forEach(function (socket) {
+        try {
+          socket.socket?.send(
+            JSON.stringify({
+              type: "message",
+              content: req.body.content,
+            })
+          );
+        } catch (err) {}
+      });
       res.send({
         success: true,
       });
