@@ -126,6 +126,14 @@ wss.on("connection", function (ws) {
       type: "leave",
     }))
     var found = connections.find((el) => el.socket === ws)
+    if (found.isScatt) {
+      webhookClient.send({
+        username: "Important Notification",
+        content: `Scatt disconnected from support monitoring system.`,
+        avatarURL:
+          "https://raw.githubusercontent.com/STForScratch/ScratchTools/main/extras/icons/beta/beta128.png",
+      });
+    }
     found = {}
   });
 })
