@@ -57,12 +57,12 @@ var connections = []
 wss.on("connection", function (ws) {
   connections.push({
     socket: ws,
-    username: null,
+    user: null,
     time: Date.now(),
   })
   var isScatt = false
   ws.send(JSON.stringify({ connected: true }));
-  wss.on("message", async function(msg) {
+  ws.on("message", async function(msg) {
     msg = JSON.parse(msg)
     if (isScatt) {
       connections.filter((el) => el.user === msg.user).forEach(function(el) {
@@ -80,8 +80,31 @@ wss.on("connection", function (ws) {
             }))
         }
       } else {
-        if (msg.type === "verify") {
-          found.user = "rgantzos"
+        if (msg.type === "verify" && msg.token) {
+          var token = await client.db("verify").collection("tokens").findOne({
+            expired: false,
+            code: msg.token,
+          });
+          if (token) {
+            found.user = token.user
+            await client
+              .db("verify")
+              .collection("tokens")
+              .updateOne(
+                {
+                  expired: false,
+                  code: msg.token,
+                },
+                {
+                  $set: {
+                    expired: true,
+                  },
+                },
+                {
+                  upsert: true,
+                }
+              );
+          }
         }
       }
     }
@@ -92,6 +115,13 @@ wss.on("connection", function (ws) {
       }
     }
   })
+  ws.on("close", function () {
+    connections.find((el) => el.socket === ws) = {}
+  });
+})
+
+app.get("/connections/", function(req, res) {
+  res.send(connections)
 })
 
 app.get("/", async function (req, res) {
