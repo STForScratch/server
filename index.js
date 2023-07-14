@@ -167,9 +167,16 @@ app.post("/support/", jsonParser, async function(req, res) {
         type: "message",
         content: req.body.content
       }))
+      res.send({
+        success: true,
+      })
     }
     res.send({
-      success: true,
+      error: "Socket not found.",
+    })
+  } else {
+    res.send({
+      error: "Missing data."
     })
   }
 })
