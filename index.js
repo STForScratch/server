@@ -125,7 +125,8 @@ wss.on("connection", function (ws) {
       user: connections.find((el) => el.socket === ws).user,
       type: "leave",
     }))
-    connections.find((el) => el.socket === ws) = {}
+    var found = connections.find((el) => el.socket === ws)
+    found = {}
   });
 })
 
