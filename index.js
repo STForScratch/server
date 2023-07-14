@@ -52,6 +52,7 @@ const http = require("http");
 var WebSocketServer = require("ws").Server;
 const httpserver = http.Server(app);
 
+var events = []
 var wss = new WebSocketServer({ server: httpserver });
 var connections = []
 wss.on("connection", function (ws) {
@@ -74,11 +75,11 @@ wss.on("connection", function (ws) {
       var found = connections.find((el) => el.socket === ws)
       if (found.user) {
         if (msg.type === "send") {
-          connections.find((el) => el.isScatt === true)?.socket.send(JSON.stringify({
+          events.push({
               message: msg.content,
               user: found.user,
               type: "message",
-            }))
+            })
         }
       } else {
         if (msg.type === "verify" && msg.token) {
@@ -88,10 +89,10 @@ wss.on("connection", function (ws) {
           });
           if (token) {
             found.user = token.user
-            connections.find((el) => el.isScatt === true)?.socket.send(JSON.stringify({
+            events.push({
               user: token.user,
               type: "join",
-            }))
+            })
             await client
               .db("verify")
               .collection("tokens")
@@ -121,10 +122,10 @@ wss.on("connection", function (ws) {
     }
   })
   ws.on("close", function () {
-    connections.find((el) => el.isScatt === true)?.socket.send(JSON.stringify({
+    events.push({
       user: connections.find((el) => el.socket === ws).user,
       type: "leave",
-    }))
+    })
     var found = connections.find((el) => el.socket === ws)
     if (found.isScatt) {
       webhookClient.send({
@@ -136,6 +137,15 @@ wss.on("connection", function (ws) {
     }
     found = {}
   });
+})
+
+app.get("/events/:code/", function(req, res) {
+  if (req.params.code === process.env.server) {
+    res.send(events)
+    events = []
+  } else {
+    res.send([])
+  }
 })
 
 app.get("/connections/", function(req, res) {
