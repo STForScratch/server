@@ -121,7 +121,7 @@ wss.on("connection", function (ws) {
     }
   })
   ws.on("close", function () {
-    connections.find((el) => el.isScatt === true).socket.send(JSON.stringify({
+    connections.find((el) => el.isScatt === true)?.socket.send(JSON.stringify({
       user: connections.find((el) => el.socket === ws).user,
       type: "leave",
     }))
