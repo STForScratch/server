@@ -48,6 +48,52 @@ const client = new MongoClient(uri, {
 });
 client.connect();
 
+const http = require("http");
+var WebSocketServer = require("ws").Server;
+const httpserver = http.Server(app);
+
+var wss = new WebSocketServer({ server: httpserver });
+var connections = []
+wss.on("connection", function (ws) {
+  connections.push({
+    socket: ws,
+    username: null,
+    time: Date.now(),
+  })
+  var isScatt = false
+  ws.send(JSON.stringify({ connected: true }));
+  wss.on("message", async function(msg) {
+    msg = JSON.parse(msg)
+    if (isScatt) {
+      connections.filter((el) => el.user === msg.user).forEach(function(el) {
+        el.socket.send(JSON.stringify({
+          message: msg.content
+        }))
+      })
+    } else {
+      var found = connections.find((el) => el.socket === ws)
+      if (found.user) {
+        if (msg.type === "send") {
+          connections.find((el) => el.isScatt === true).socket.send(JSON.stringify({
+              message: msg.content,
+              user: found.user,
+            }))
+        }
+      } else {
+        if (msg.type === "verify") {
+          found.user = "rgantzos"
+        }
+      }
+    }
+    if (msg.type === "verifyScatt") {
+      if (msg.code && msg.code === process.env.server) {
+        isScatt = true
+        connections.find((el) => el.socket === ws).isScatt = true
+      }
+    }
+  })
+})
+
 app.get("/", async function (req, res) {
   res.send("Currently running.");
 });
@@ -784,4 +830,4 @@ app.get("/get/:code/", async function (req, res) {
   }
 });
 
-app.listen(PORT);
+httpserver.listen(PORT);
