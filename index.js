@@ -52,47 +52,81 @@ const http = require("http");
 var WebSocketServer = require("ws").Server;
 const httpserver = http.Server(app);
 
-var events = []
+var events = [];
 var wss = new WebSocketServer({ server: httpserver });
-var connections = []
+var connections = [];
 wss.on("connection", function (ws) {
   connections.push({
     socket: ws,
     user: null,
     time: Date.now(),
-  })
-  var isScatt = false
+  });
+  var isScatt = false;
   ws.send(JSON.stringify({ connected: true }));
-  ws.on("message", async function(msg) {
-    msg = JSON.parse(msg)
+  ws.on("message", async function (msg) {
+    msg = JSON.parse(msg);
     if (isScatt) {
-      connections.filter((el) => el.user === msg.user).forEach(function(el) {
-        el.socket.send(JSON.stringify({
-          message: msg.content
-        }))
-      })
+      connections
+        .filter((el) => el.user === msg.user)
+        .forEach(function (el) {
+          el.socket.send(
+            JSON.stringify({
+              message: msg.content,
+            })
+          );
+        });
     } else {
-      var found = connections.find((el) => el.socket === ws)
+      var found = connections.find((el) => el.socket === ws);
       if (found.user) {
         if (msg.type === "send") {
           events.push({
-              message: msg.content,
-              user: found.user,
-              type: "message",
-            })
+            message: msg.content,
+            user: found.user,
+            type: "message",
+          });
         }
       } else {
-        if (msg.type === "verify" && msg.token) {
+        if (msg.type === "verify" && msg.token && msg.features && msg.version) {
           var token = await client.db("verify").collection("tokens").findOne({
             expired: false,
             code: msg.token,
           });
           if (token) {
-            found.user = token.user
+            found.user = token.user;
+            var features = await (
+              await fetch(
+                "https://raw.githubusercontent.com/STForScratch/ScratchTools/main/features/features.json"
+              )
+            ).json();
+            var enabled = [];
+            features.forEach(function (el) {
+              if (msg.features.includes(el.file || el.id)) {
+                enabled.push(el.file || el.id);
+              }
+            });
+            enabled = enabled.sort();
+            var already = await client
+              .db("features")
+              .collection("saved")
+              .findOne({
+                data: enabled,
+              });
+            if (already) {
+              enabled = already.code;
+            } else {
+              var code = makeId(50);
+              await client.db("features").collection("saved").insertOne({
+                code: code,
+                data: enabled,
+              });
+              enabled = code;
+            }
             events.push({
               user: token.user,
               type: "join",
-            })
+              features: enabled,
+              version: msg.version,
+            });
             await client
               .db("verify")
               .collection("tokens")
@@ -114,29 +148,29 @@ wss.on("connection", function (ws) {
         }
       }
     }
-  })
+  });
   ws.on("close", function () {
     events.push({
       user: connections.find((el) => el.socket === ws).user,
       type: "leave",
-    })
-    var found = connections.find((el) => el.socket === ws)
-    found = {}
+    });
+    var found = connections.find((el) => el.socket === ws);
+    found = {};
   });
-})
+});
 
-app.get("/events/:code/", function(req, res) {
+app.get("/events/:code/", function (req, res) {
   if (req.params.code === process.env.server) {
-    res.send(events)
-    events = []
+    res.send(events);
+    events = [];
   } else {
-    res.send([])
+    res.send([]);
   }
-})
+});
 
-app.get("/connections/", function(req, res) {
-  res.send(connections)
-})
+app.get("/connections/", function (req, res) {
+  res.send(connections);
+});
 
 app.get("/", async function (req, res) {
   res.send("Currently running.");
@@ -194,7 +228,7 @@ app.get("/get-token/", async function (req, res) {
         );
       res.send({
         token: token.token,
-        user: token.user
+        user: token.user,
       });
     } else {
       res.send({
