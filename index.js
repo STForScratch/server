@@ -144,6 +144,10 @@ wss.on("connection", function (ws) {
                   upsert: true,
                 }
               );
+          } else {
+            ws.send(JSON.stringify({
+              error: "Authentication failed."
+            }))
           }
         }
       }
