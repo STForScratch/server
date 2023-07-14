@@ -159,6 +159,21 @@ wss.on("connection", function (ws) {
   });
 });
 
+app.post("/support/", async function(req, res) {
+  if (req.body.user && req.body.secret === process.env.server && req.body.content) {
+    var socket = connections.find((el) => el.user === req.body.user)?.socket
+    if (socket) {
+      socket.send(JSON.stringify({
+        type: "message",
+        content: req.body.content
+      }))
+    }
+    res.send({
+      success: true,
+    })
+  }
+})
+
 app.get("/events/:code/", function (req, res) {
   if (req.params.code === process.env.server) {
     res.send(events);
