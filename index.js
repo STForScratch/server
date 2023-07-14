@@ -146,7 +146,8 @@ wss.on("connection", function (ws) {
               );
           } else {
             ws.send(JSON.stringify({
-              error: "Authentication failed."
+              error: "Authentication failed.",
+              endOfWorld: true,
             }))
           }
         }
