@@ -144,6 +144,10 @@ wss.on("connection", function (ws) {
                   upsert: true,
                 }
               );
+              ws.send(JSON.stringify({
+                type: "message",
+                content: `Hey, ${token.user}! Welcome to the ScratchTools support chat. We'd love to help you out with ScratchTools, what do you need? Heads up- we do `,
+              }))
           } else {
             ws.send(JSON.stringify({
               error: "Authentication failed.",
