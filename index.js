@@ -74,7 +74,7 @@ wss.on("connection", function (ws) {
       var found = connections.find((el) => el.socket === ws)
       if (found.user) {
         if (msg.type === "send") {
-          connections.find((el) => el.isScatt === true).socket.send(JSON.stringify({
+          connections.find((el) => el.isScatt === true)?.socket.send(JSON.stringify({
               message: msg.content,
               user: found.user,
               type: "message",
