@@ -195,41 +195,7 @@ app.post("/support/", jsonParser, async function (req, res) {
           error: "Socket not found.",
         });
       }
-    } else {
-      res.send({
-        error: "Missing data.",
-      });
-    }
-  } else if (req.body.user && req.body.type === "disableAll") {
-    var sockets = connections.filter((el) => el.user === req.body.user);
-    if (sockets.length !== 0) {
-      sockets.forEach(function (socket) {
-        try {
-          socket.socket?.send(
-            JSON.stringify({
-              type: "setFeatures",
-              features: "",
-            })
-          );
-        } catch (err) {}
-      });
-      res.send({
-        success: true,
-      });
-    } else {
-      res.send({
-        error: "Socket not found.",
-      });
-    }
-  } else if (
-    req.body.user &&
-    req.body.code &&
-    req.body.type === "resetFeatures"
-  ) {
-    var found = await client.db("features").collection("saved").findOne({
-      code: req.body.code,
-    });
-    if (found) {
+    } else if (req.body.user && req.body.type === "disableAll") {
       var sockets = connections.filter((el) => el.user === req.body.user);
       if (sockets.length !== 0) {
         sockets.forEach(function (socket) {
@@ -237,7 +203,7 @@ app.post("/support/", jsonParser, async function (req, res) {
             socket.socket?.send(
               JSON.stringify({
                 type: "setFeatures",
-                features: found.data.join("."),
+                features: "",
               })
             );
           } catch (err) {}
@@ -250,10 +216,40 @@ app.post("/support/", jsonParser, async function (req, res) {
           error: "Socket not found.",
         });
       }
-    } else {
-      res.send({
-        error: "Code not found.",
+    } else if (
+      req.body.user &&
+      req.body.code &&
+      req.body.type === "resetFeatures"
+    ) {
+      var found = await client.db("features").collection("saved").findOne({
+        code: req.body.code,
       });
+      if (found) {
+        var sockets = connections.filter((el) => el.user === req.body.user);
+        if (sockets.length !== 0) {
+          sockets.forEach(function (socket) {
+            try {
+              socket.socket?.send(
+                JSON.stringify({
+                  type: "setFeatures",
+                  features: found.data.join("."),
+                })
+              );
+            } catch (err) {}
+          });
+          res.send({
+            success: true,
+          });
+        } else {
+          res.send({
+            error: "Socket not found.",
+          });
+        }
+      } else {
+        res.send({
+          error: "Code not found.",
+        });
+      }
     }
   }
 });
