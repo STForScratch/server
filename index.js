@@ -282,6 +282,46 @@ app.post("/support/", jsonParser, async function (req, res) {
 app.get("/themes/scratchtools/", async function(req, res) {
   var themes = [
     {
+      title: "Classic Light",
+      author: "ScratchTools",
+      _id: "classic-light",
+      theme: "light",
+      colors: {
+        theme: "#FF9F00",
+        background: "#ffffff",
+        primary: "#000000",
+        secondary: "#00000077",
+        searchbar: "#eeeeee",
+        box: "#eeeeee",
+        feature: "#eeeeee75",
+        input: "#e4e4e4",
+        slider: "#cccccc",
+        scrollbar: "#c2bfbf",
+        scrollbar_active: "#b2afaf",
+        gradient: ["#ff8c2d", "#ffb740"]
+      }
+    },
+    {
+      title: "Classic Dark",
+      author: "ScratchTools",
+      _id: "classic-dark",
+      theme: "dark",
+      colors: {
+        theme: "#FF9F00",
+        background: "#3f3f3f",
+        primary: "#ffffff",
+        secondary: "#ffffff77",
+        searchbar: "#ffffff17",
+        box: "#eeeeee",
+        feature: "#343434",
+        input: "#545454",
+        slider: "#4b4b4b",
+        scrollbar: "#797979",
+        scrollbar_active: "#656565",
+        gradient: ["#ff8c2d", "#ffb740"]
+      }
+    },
+    {
       title: "Purple",
       author: "ScratchTools",
       _id: "purple",
