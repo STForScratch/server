@@ -320,6 +320,26 @@ app.get("/themes/scratchtools/", async function(req, res) {
         scrollbar_active: "#b2afaf",
         gradient: ["#87459f", "#cc4ead"]
       }
+    },
+    {
+      title: "Darker",
+      author: "ScratchTools",
+      _id: "darker-theme",
+      theme: "light",
+      colors: {
+        theme: "#FF9F00",
+        background: "#111111",
+        primary: "#ffffff",
+        secondary: "#ffffffaa",
+        searchbar: "#222222",
+        box: "#333333",
+        feature: "#33333375",
+        input: "#444444",
+        slider: "#555555",
+        scrollbar: "#777777",
+        scrollbar_active: "#888888",
+        gradient: ["#FF9F00", "#FFA854"]
+      }
     }
   ]
   res.send(themes)
