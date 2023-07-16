@@ -325,7 +325,7 @@ app.get("/themes/scratchtools/", async function(req, res) {
       title: "Darker",
       author: "ScratchTools",
       _id: "darker-theme",
-      theme: "light",
+      theme: "dark",
       colors: {
         theme: "#FF9F00",
         background: "#111111",
