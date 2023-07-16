@@ -279,6 +279,31 @@ app.post("/support/", jsonParser, async function (req, res) {
   }
 });
 
+app.get("/themes/scratchtools/", async function(req, res) {
+  var themes = [
+    {
+      title: "Purple",
+      author: "ScratchTools",
+      theme: "dark",
+      colors: {
+        theme: "#6a00ff",
+        background: "#13002e",
+        primary: "#ffffff",
+        secondary: "#ffffff77",
+        searchbar: "#00000080",
+        box: "#00000080",
+        feature: "#00000080",
+        input: "#44444475",
+        slider: "#44444475",
+        scrollbar: "#00000080",
+        scrollbar_active: "#38383880",
+        gradient: ["#6a00ff", "#9447ff"]
+      }
+    }
+  ]
+  res.send(themes)
+})
+
 app.get("/events/:code/", function (req, res) {
   if (req.params.code === process.env.server) {
     res.send(events);
