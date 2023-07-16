@@ -299,6 +299,25 @@ app.get("/themes/scratchtools/", async function(req, res) {
         scrollbar_active: "#38383880",
         gradient: ["#6a00ff", "#9447ff"]
       }
+    },
+    {
+      title: "Grimace Shake",
+      author: "ScratchTools",
+      theme: "light",
+      colors: {
+        theme: "#a660c5",
+        background: "#c54c9b20",
+        primary: "#000000",
+        secondary: "#00000077",
+        searchbar: "#a559b420",
+        box: "#ffffff40",
+        feature: "#ffffff40",
+        input: "#e4e4e4",
+        slider: "#cccccc",
+        scrollbar: "#c2bfbf",
+        scrollbar_active: "#b2afaf",
+        gradient: ["#87459f", "#cc4ead"]
+      }
     }
   ]
   res.send(themes)
