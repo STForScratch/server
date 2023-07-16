@@ -284,6 +284,7 @@ app.get("/themes/scratchtools/", async function(req, res) {
     {
       title: "Purple",
       author: "ScratchTools",
+      _id: "purple",
       theme: "dark",
       colors: {
         theme: "#6a00ff",
@@ -303,6 +304,7 @@ app.get("/themes/scratchtools/", async function(req, res) {
     {
       title: "Grimace Shake",
       author: "ScratchTools",
+      _id: "grimace-shake",
       theme: "light",
       colors: {
         theme: "#a660c5",
