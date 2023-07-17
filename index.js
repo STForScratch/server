@@ -189,6 +189,41 @@ app.get("/messages/:user/count/", async function (req, res) {
   res.send({ count: messages.length });
 });
 
+app.post("/get-messages/", jsonParser, async function (req, res) {
+  if (req.body.token) {
+    var token = await client.db("verify").collection("tokens").findOne({
+      expired: false,
+      code: req.body.token,
+    });
+    if (token) {
+      var messages = await client
+        .db("messages")
+        .collection("feedback")
+        .find({
+          username: token.user,
+        })
+        .toArray();
+      await client
+        .db("messages")
+        .collection("feedback")
+        .updateMany(
+          {
+            username: token.user,
+            unread: true,
+          },
+          {
+            $set: {
+              unread: false,
+            },
+          },
+          {
+            upsert: false,
+          }
+        );
+      res.send(messages);
+    } else {
+      res.send({
+        error: "Token not found.",
 app.post("/message/", jsonParser, async function (req, res) {
   if (req.body.secret === process.env.server) {
     if (req.body.user && req.body.message) {
