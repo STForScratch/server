@@ -177,6 +177,13 @@ wss.on("connection", function (ws) {
   });
 });
 
+app.get("/messages/:user/count/", async function(req, res) {
+  var messages = await client.db("messages").collection("feedback").find({
+    username: req.params.user.toLowerCase()
+  }).toArray()
+  res.send(messages.length)
+})
+
 app.post("/support/", jsonParser, async function (req, res) {
   if (req.body.secret === process.env.server) {
     if (req.body.type === "message" && req.body.user && req.body.content) {
