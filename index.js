@@ -181,7 +181,7 @@ app.get("/messages/:user/count/", async function(req, res) {
   var messages = await client.db("messages").collection("feedback").find({
     username: req.params.user.toLowerCase()
   }).toArray()
-  res.send(messages.length)
+  res.send({ count: messages.length })
 })
 
 app.post("/support/", jsonParser, async function (req, res) {
