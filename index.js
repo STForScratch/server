@@ -224,6 +224,15 @@ app.post("/get-messages/", jsonParser, async function (req, res) {
     } else {
       res.send({
         error: "Token not found.",
+      });
+    }
+  } else {
+    res.send({
+      error: "Token not found.",
+    });
+  }
+});
+
 app.post("/message/", jsonParser, async function (req, res) {
   if (req.body.secret === process.env.server) {
     if (req.body.user && req.body.message) {
