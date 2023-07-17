@@ -233,6 +233,76 @@ app.post("/get-messages/", jsonParser, async function (req, res) {
   }
 });
 
+app.post("/verified-feedback/", jsonParser, async function (req, res) {
+  if (
+    req.body.useragent &&
+    typeof req.body.useragent === "string" &&
+    req.body.settings &&
+    typeof req.body.settings === "string" &&
+    req.body.token &&
+    typeof req.body.token &&
+    req.body.feedback &&
+    typeof req.body.feedback &&
+    req.body.version &&
+    typeof req.body.version === "string"
+  ) {
+    var token = await client.db("verify").collection("tokens").findOne({
+      expired: false,
+      code: req.body.token,
+    });
+    if (token) {
+      req.body.username = token.user;
+      var embed = new EmbedBuilder()
+        .setTitle("New Feedback")
+        .setDescription("Feedback has been received via the extension.")
+        .addFields(
+          {
+            name: "Username (Verified)",
+            value: req.body.username,
+            inline: false,
+          },
+          {
+            name: "Feedback",
+            value: req.body.feedback,
+            inline: false,
+          },
+          {
+            name: "Version",
+            value: "`" + req.body.version + "`",
+            inline: false,
+          },
+          {
+            name: "Useragent",
+            value: "`" + req.body.useragent + "`",
+            inline: false,
+          },
+          {
+            name: "Features Enabled Code",
+            value: "`" + req.body.settings + "`",
+            inline: false,
+          }
+        );
+      webhookClient.send({
+        username: "ScratchTools Webserver Moderation",
+        avatarURL:
+          "https://raw.githubusercontent.com/STForScratch/ScratchTools/main/extras/icons/beta/beta128.png",
+        embeds: [embed],
+      });
+      res.send({
+        success: true,
+      });
+    } else {
+      res.send({
+        error: "Invalid token.",
+      });
+    }
+  } else {
+    res.send({
+      error: "Missing parameters.",
+    });
+  }
+});
+
 app.post("/message/", jsonParser, async function (req, res) {
   if (req.body.secret === process.env.server) {
     if (req.body.user && req.body.message) {
