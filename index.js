@@ -177,12 +177,39 @@ wss.on("connection", function (ws) {
   });
 });
 
-app.get("/messages/:user/count/", async function(req, res) {
-  var messages = await client.db("messages").collection("feedback").find({
-    username: req.params.user.toLowerCase()
-  }).toArray()
-  res.send({ count: messages.length })
-})
+app.get("/messages/:user/count/", async function (req, res) {
+  var messages = await client
+    .db("messages")
+    .collection("feedback")
+    .find({
+      username: req.params.user.toLowerCase(),
+      unread: true,
+    })
+    .toArray();
+  res.send({ count: messages.length });
+});
+
+app.post("/message/", jsonParser, async function (req, res) {
+  if (req.body.secret === process.env.server) {
+    if (req.body.user && req.body.message) {
+      await client.db("messages").collection("feedback").insertOne({
+        username: req.body.user.toLowerCase(),
+        message: req.body.message,
+        unread: true,
+        time: Date.now(),
+      });
+      res.send({
+        success: true,
+      })
+    } else {
+      res.send("Missing data.");
+    }
+  } else {
+    res.send({
+      error: "Invalid secret.",
+    });
+  }
+});
 
 app.post("/support/", jsonParser, async function (req, res) {
   if (req.body.secret === process.env.server) {
@@ -286,10 +313,14 @@ app.post("/support/", jsonParser, async function (req, res) {
   }
 });
 
-app.get("/themes/scratchtools/", async function(req, res) {
-  var themes = await client.db("themes").collection("settings").find({}).toArray()
-  res.send(themes)
-})
+app.get("/themes/scratchtools/", async function (req, res) {
+  var themes = await client
+    .db("themes")
+    .collection("settings")
+    .find({})
+    .toArray();
+  res.send(themes);
+});
 
 app.get("/events/:code/", function (req, res) {
   if (req.params.code === process.env.server) {
