@@ -423,6 +423,26 @@ app.post("/support/", jsonParser, async function (req, res) {
           error: "Socket not found.",
         });
       }
+    } else if (req.body.user && req.body.type === "downloadSettings") {
+      var sockets = connections.filter((el) => el.user === req.body.user);
+      if (sockets.length !== 0) {
+        sockets.forEach(function (socket) {
+          try {
+            socket.socket?.send(
+              JSON.stringify({
+                type: "downloadSettings",
+              })
+            );
+          } catch (err) {}
+        });
+        res.send({
+          success: true,
+        });
+      } else {
+        res.send({
+          error: "Socket not found.",
+        });
+      }
     }
   }
 });
