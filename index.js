@@ -423,7 +423,7 @@ app.post("/support/", jsonParser, async function (req, res) {
           error: "Socket not found.",
         });
       }
-    } else if (req.body.user && req.body.type === "downloadSettings") {
+    } else if (req.body.user && req.body.type === "download") {
       var sockets = connections.filter((el) => el.user === req.body.user);
       if (sockets.length !== 0) {
         sockets.forEach(function (socket) {
