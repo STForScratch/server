@@ -200,7 +200,7 @@ app.post("/get-messages/", jsonParser, async function (req, res) {
         .db("messages")
         .collection("feedback")
         .find({
-          username: token.user,
+          username: token.user.toLowerCase(),
         })
         .toArray();
       await client
@@ -208,7 +208,7 @@ app.post("/get-messages/", jsonParser, async function (req, res) {
         .collection("feedback")
         .updateMany(
           {
-            username: token.user,
+            username: token.user.toLowerCase(),
             unread: true,
           },
           {
