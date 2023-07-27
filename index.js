@@ -510,6 +510,13 @@ app.get("/isbeta/:username/", async function (req, res) {
   }
 });
 
+app.get("/news/", async function(req, res) {
+  res.send({
+    title: "ScratchTools is Going Multilingual!",
+    description: 'ScratchTools is becoming available in even more languages! Our beta version supports Polish and Russian, and more languages such as Spanish, Turkish, German and Japanese are coming soon! If you know a language other than English, you can help translate and get credit for it <a href="https://explore.transifex.com/scratchtools/scratchtools/">here</a>!'
+  })
+})
+
 app.get("/get-token/", async function (req, res) {
   if (
     ObjectId.isValid(req.query.secret) &&
