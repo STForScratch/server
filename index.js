@@ -309,6 +309,11 @@ app.get("/tutorials/", async function(req, res) {
       title: "Create a Multiplayer Game",
       description: "Make a multiplayer cloud game, where Scratchers can play together!",
       id: "1JTgg4WVAX8",
+    },
+    {
+      title: "Make a Platformer",
+      description: "Platformers are very popular on Scratch, now you can make your own!",
+      id: "aUmXJJww7KE"
     }
   ])
 })
