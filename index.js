@@ -303,6 +303,16 @@ app.post("/verified-feedback/", jsonParser, async function (req, res) {
   }
 });
 
+app.get("/tutorials/", async function(req, res) {
+  res.send([
+    {
+      title: "Create a Multiplayer Game",
+      author: "griffpatch",
+      id: "1JTgg4WVAX8",
+    }
+  ])
+})
+
 app.post("/message/", jsonParser, async function (req, res) {
   if (req.body.secret === process.env.server) {
     if (req.body.user && req.body.message) {
