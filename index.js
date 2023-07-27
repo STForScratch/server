@@ -307,7 +307,7 @@ app.get("/tutorials/", async function(req, res) {
   res.send([
     {
       title: "Create a Multiplayer Game",
-      description: "Learn how to make a multiplayer cloud game, where Scratchers can play together!",
+      description: "Make a multiplayer cloud game, where Scratchers can play together!",
       id: "1JTgg4WVAX8",
     }
   ])
