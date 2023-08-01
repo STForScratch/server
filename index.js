@@ -512,8 +512,8 @@ app.get("/isbeta/:username/", async function (req, res) {
 
 app.get("/news/", async function(req, res) {
   res.send({
-    title: "ScratchTools is Going Multilingual!",
-    description: 'ScratchTools is becoming available in even more languages! Our beta version supports Polish and Russian, and more languages such as Spanish, Turkish, German and Japanese are coming soon! If you know a language other than English, you can help translate and get credit for it <a href="https://explore.transifex.com/scratchtools/scratchtools/">here</a>!'
+    title: "ScratchTools v3!",
+    description: 'The latest version of ScratchTools is now here, with a major new release! You can now customize what your settings page looks like, or open up a live chat support session with a specialist! There is so much cool new stuff, check it out!'
   })
 })
 
