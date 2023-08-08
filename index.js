@@ -18,14 +18,14 @@ const INSTALLATION_ID = "33371842";
 
 const { App } = require("octokit");
 
-const app = new App({
+const authApp = new App({
   appId: APP_ID,
   privateKey: PRIVATE_KEY,
   request: { fetch }
 });
 
 async function commentOnIssue(issue, body) {
-    const octokit = await app.getInstallationOctokit(INSTALLATION_ID);
+    const octokit = await authApp.getInstallationOctokit(INSTALLATION_ID);
     
     await octokit.request("POST /repos/STForScratch/ScratchTools/issues/"+issue+"/comments", {
         owner: "STForScratch",
