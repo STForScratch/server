@@ -12,6 +12,43 @@ var bodyParser = require("body-parser");
 var jsonParser = bodyParser.json();
 app = express();
 
+const PRIVATE_KEY = atob(process.env.github);
+const APP_ID = "284321";
+const INSTALLATION_ID = "33371842";
+
+const { App } = require("octokit");
+
+const app = new App({
+  appId: APP_ID,
+  privateKey: PRIVATE_KEY,
+  request: { fetch }
+});
+
+async function commentOnIssue(issue, body) {
+    const octokit = await app.getInstallationOctokit(INSTALLATION_ID);
+    
+    await octokit.request("POST /repos/STForScratch/ScratchTools/issues/"+issue+"/comments", {
+        owner: "STForScratch",
+        repo: "ScratchTools",
+        issue_number: issue,
+        body,
+        
+        headers: {
+          "x-github-api-version": "2022-11-28",
+        },
+      }
+    )
+}
+
+app.post("/comment/", jsonParser, async function(req, res) {
+  if (req.body.server === process.env.server) {
+    commentOnIssue(req.body.issue.toString(), req.body.content.toString())
+    res.send({
+      success: true,
+    })
+  }
+})
+
 app.get("/index.js", function (req, res) {
   res.send({
     error: "nope",
@@ -47,6 +84,27 @@ const client = new MongoClient(uri, {
   serverApi: ServerApiVersion.v1,
 });
 client.connect();
+
+var newTheme = {
+  title: "Late Sunset",
+  author: "ScratchTools",
+  theme: "dark",
+  colors: {
+    gradient: ["#FF4500", "#FFA64D"],
+    theme: "#FF4500",
+    background: "#1A1A1A",
+    primary: "#FFFFFF",
+    secondary: "#FFFFFF77",
+    searchbar: "#383838",
+    feature: "#79797933",
+    slider: "#FFFFFF33",
+    scrollbar_active: "#FF4500",
+    scrollbar: "#FF4500CC",
+    input: "#FFFFFF33",
+    box: "#383838B3",
+  },
+};
+// client.db("themes").collection("settings").insertOne(newTheme);
 
 const http = require("http");
 var WebSocketServer = require("ws").Server;
@@ -329,7 +387,7 @@ app.post("/message/", jsonParser, async function (req, res) {
       });
       res.send({
         success: true,
-      })
+      });
     } else {
       res.send("Missing data.");
     }
