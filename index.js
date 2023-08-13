@@ -570,8 +570,8 @@ app.get("/isbeta/:username/", async function (req, res) {
 
 app.get("/news/", async function(req, res) {
   res.send({
-    title: "Now in Japanese!",
-    description: 'ScratchTools v3.1.0 will be available in Japanese! This is the first language that we have been fully translated into for a while, thanks to our massive localization team with over 100 members. Many other languages including Spanish, Polish, and Turkish are also very close to being completed.'
+    title: "IMPORTANT INFO FOR NON-ENGLISH USERS",
+    description: 'If you are using ScratchTools in a language other than Japanese or English, then we are very sorry if your features are not appearing. We have fixed the bug, and Chrome is reviewing the new version. It should be released to you very soon. We apologize for the inconvenience.'
   })
 })
 
