@@ -568,6 +568,27 @@ app.get("/isbeta/:username/", async function (req, res) {
   }
 });
 
+app.get("/trending/", function(req, res) {
+  res.send([
+    "comment-on-closed-profile",
+    "pause-audio",
+    "scroll-project-titles",
+    "sprite-clones",
+    "message-count",
+    "collapse-blocks",
+    "colored-comments",
+    "forum-scratch-team",
+    "special-editor-fonts",
+    "statistics",
+    "stats-percentages",
+    "isonline",
+    "get-project-tags",
+    "project-timer",
+    "scrollable-list-items",
+    "admin-notifications"
+  ])
+})
+
 app.get("/news/", async function(req, res) {
   res.send({
     title: "IMPORTANT INFO FOR NON-ENGLISH USERS",
