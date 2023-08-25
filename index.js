@@ -372,6 +372,16 @@ app.get("/tutorials/", async function(req, res) {
       title: "Make a Platformer",
       description: "Platformers are very popular on Scratch, now you can make your own!",
       id: "aUmXJJww7KE"
+    },
+    {
+      title: "Geometry Dash",
+      description: "Make your very own Geometry Dash game using the Scratch editor!",
+      id: "FYZ1bfB1nho"
+    },
+    {
+      title: "Flappy Bird",
+      description: "Learn how to make the classic Flappy Bird game on Scratch!",
+      id: "Rg_UIn5vii8"
     }
   ])
 })
