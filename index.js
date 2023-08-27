@@ -601,8 +601,8 @@ app.get("/trending/", function(req, res) {
 
 app.get("/news/", async function(req, res) {
   res.send({
-    title: "IMPORTANT INFO FOR NON-ENGLISH USERS",
-    description: 'If you are using ScratchTools in a language other than Japanese or English, then we are very sorry if your features are not appearing. We have fixed the bug, and Chrome is reviewing the new version. It should be released to you very soon. We apologize for the inconvenience.'
+    title: "We want to know your favorite feature!",
+    description: "If you want to be featured in a ScratchTools YouTube video, either submit feedback here or open a support ticket using the buttons below and tell us your favorite feature!"
   })
 })
 
