@@ -271,7 +271,7 @@ app.post("/uninstall/", jsonParser, async function (req, res) {
           },
           {
             name: "Installed",
-            value: `<t:${req.body.timeInstalled ? (Number(req.body.timeInstalled) / 1000).toString() : "Unknown Time"}>`,
+            value: `<t:${req.body.timeInstalled ? Math.round(Number(req.body.timeInstalled) / 1000).toString() : "Unknown Time"}>`,
             inline: false,
           },
           {
