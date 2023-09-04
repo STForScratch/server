@@ -247,17 +247,10 @@ app.get("/messages/:user/count/", async function (req, res) {
   res.send({ count: messages.length });
 });
 
+let recentUninstalls = [];
+
 app.post("/uninstall/", jsonParser, async function (req, res) {
   if (req.body.server === process.env.server) {
-    let embed = new EmbedBuilder()
-      .setTitle("Uninstall")
-      .setDescription("A user has uninstalled ScratchTools.")
-      .addFields(
-        {
-          name: "Username (Not Verified)",
-          value: req.body.username || "Unknown Username",
-          inline: false,
-        },
         {
           name: "Installed",
           value: `<t:${req.body.timeInstalled || "Unknown Time"}>`,
@@ -265,7 +258,6 @@ app.post("/uninstall/", jsonParser, async function (req, res) {
         },
         {
           name: "Features Enabled Code",
-          value: "`" + (req.body.features || "Unknown") + "`",
           inline: false,
         },
         {
