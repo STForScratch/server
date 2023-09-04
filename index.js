@@ -280,6 +280,9 @@ app.post("/uninstall/", jsonParser, async function (req, res) {
         "https://raw.githubusercontent.com/STForScratch/ScratchTools/main/extras/icons/beta/beta128.png",
       embeds: [embed],
     });
+    res.send({
+      success: true,
+    })
   }
 });
 
