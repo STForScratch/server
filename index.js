@@ -247,6 +247,42 @@ app.get("/messages/:user/count/", async function (req, res) {
   res.send({ count: messages.length });
 });
 
+app.post("/uninstall/", jsonParser, async function (req, res) {
+  if (req.body.server === process.env.server) {
+    let embed = new EmbedBuilder()
+      .setTitle("Uninstall")
+      .setDescription("A user has uninstalled ScratchTools.")
+      .addFields(
+        {
+          name: "Username (Not Verified)",
+          value: req.body.username || "Unknown Username",
+          inline: false,
+        },
+        {
+          name: "Installed",
+          value: `<t:${req.body.timeInstalled || "Unknown Time"}>`,
+          inline: false,
+        },
+        {
+          name: "Features Enabled Code",
+          value: "`" + (req.body.features || "Unknown") + "`",
+          inline: false,
+        },
+        {
+          name: "Version",
+          value: "`" + (req.body.version || "") + "`",
+          inline: false,
+        }
+      );
+    webhookClient.send({
+      username: "ScratchTools Webserver Moderation",
+      avatarURL:
+        "https://raw.githubusercontent.com/STForScratch/ScratchTools/main/extras/icons/beta/beta128.png",
+      embeds: [embed],
+    });
+  }
+});
+
 app.post("/get-messages/", jsonParser, async function (req, res) {
   if (req.body.token) {
     var token = await client.db("verify").collection("tokens").findOne({
