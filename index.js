@@ -442,9 +442,9 @@ app.get("/projects/:id/", async function (req, res) {
     await fetch(process.env.api_server + `/projects/${req.params.id}/`)
   ).json();
   if (data.error) {
-    return { error: "project not found" };
+    res.send({ error: "project not found" });
   } else {
-    return data;
+    res.send(data);
   }
 });
 
