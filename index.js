@@ -439,7 +439,7 @@ app.get("/tutorials/", async function(req, res) {
 
 app.get("/projects/:id/", async function (req, res) {
   let data = await (
-    await fetch(process.env.api_server + `/projects/${id}/`)
+    await fetch(process.env.api_server + `/projects/${req.params.id}/`)
   ).json();
   if (data.error) {
     return { error: "project not found" };
