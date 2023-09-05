@@ -437,6 +437,17 @@ app.get("/tutorials/", async function(req, res) {
   ])
 })
 
+app.get("/projects/:id/", async function (req, res) {
+  let data = await (
+    await fetch(process.env.api_server + `/projects/${id}/`)
+  ).json();
+  if (data.error) {
+    return { error: "project not found" };
+  } else {
+    return data;
+  }
+});
+
 app.post("/message/", jsonParser, async function (req, res) {
   if (req.body.secret === process.env.server) {
     if (req.body.user && req.body.message) {
