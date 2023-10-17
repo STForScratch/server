@@ -1055,6 +1055,10 @@ app.get("/status/:username/", async function (req, res) {
 const { emojis } = require("./emojis.js");
 
 app.post("/setstatus/", jsonParser, async function (req, res) {
+  res.send({
+    error: "Scratch is currently having issues with cloud variables, and this ScratchTools feature will be down for a few hours. Don't worry, it will be back very soon!"
+  })
+  return;
   if (
     req.body.token &&
     typeof req.body.token === "string" &&
@@ -1145,6 +1149,10 @@ app.post("/setstatus/", jsonParser, async function (req, res) {
 });
 
 app.post("/setdisplay/", jsonParser, async function (req, res) {
+  res.send({
+    error: "Scratch is currently having issues with cloud variables, and this ScratchTools feature will be down for a few hours. Don't worry, it will be back very soon!"
+  })
+  return;
   if (
     req.body.token &&
     typeof req.body.token === "string" &&
