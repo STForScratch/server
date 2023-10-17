@@ -1248,6 +1248,12 @@ app.post("/setdisplay/", jsonParser, async function (req, res) {
   }
 });
 
+app.get("/cloud-status/", async function(req, res) {
+  res.send({
+    available: false,
+  })
+})
+
 app.post("/verify/", jsonParser, async function (req, res) {
   if (req.body.secret && typeof req.body.secret === "string") {
     var found = await client.db("verify").collection("codes").findOne({
