@@ -1329,6 +1329,37 @@ app.post("/verify/", jsonParser, async function (req, res) {
   }
 });
 
+app.get("/verify/", async function (req, res) {
+  if (req.query.code) {
+    let data = await (
+      await fetch(
+        `https://auth.itinerary.eu.org/api/auth/verifyToken?privateCode=${req.query.code}`
+      )
+    ).json();
+    if (data.valid) {
+      let token = makeId(100);
+      await client.db("verify").collection("tokens").insertOne({
+        time: Date.now(),
+        user: data.username,
+        code: token,
+        expired: false,
+      });
+      res.send({
+        success: true,
+        token,
+      });
+    } else {
+      res.send({
+        error: "Authentication failed.",
+      });
+    }
+  } else {
+    res.send({
+      error: "No code used.",
+    });
+  }
+});
+
 app.get("/all/online/", async function (req, res) {
   var all = await client
     .db("isonline")
