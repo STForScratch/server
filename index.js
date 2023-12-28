@@ -1347,6 +1347,7 @@ app.get("/verify/", async function (req, res) {
       res.send({
         success: true,
         token,
+        username: data.username,
       });
     } else {
       res.send({
