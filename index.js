@@ -1150,8 +1150,9 @@ app.post("/setstatus/", jsonParser, async function (req, res) {
 
 app.post("/setdisplay/", jsonParser, async function (req, res) {
   res.send({
-    error: "Scratch is currently having issues with cloud variables, and this ScratchTools feature will be down for a few hours. Don't worry, it will be back very soon!"
-  })
+    error:
+      "Scratch is currently having issues with cloud variables, and this ScratchTools feature will be down for a few hours. Don't worry, it will be back very soon!",
+  });
   return;
   if (
     req.body.token &&
