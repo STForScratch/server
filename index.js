@@ -21,33 +21,35 @@ const { App } = require("octokit");
 const authApp = new App({
   appId: APP_ID,
   privateKey: PRIVATE_KEY,
-  request: { fetch }
+  request: { fetch },
 });
 
 async function commentOnIssue(issue, body) {
-    const octokit = await authApp.getInstallationOctokit(INSTALLATION_ID);
-    
-    await octokit.request("POST /repos/STForScratch/ScratchTools/issues/"+issue+"/comments", {
-        owner: "STForScratch",
-        repo: "ScratchTools",
-        issue_number: issue,
-        body,
-        
-        headers: {
-          "x-github-api-version": "2022-11-28",
-        },
-      }
-    )
+  const octokit = await authApp.getInstallationOctokit(INSTALLATION_ID);
+
+  await octokit.request(
+    "POST /repos/STForScratch/ScratchTools/issues/" + issue + "/comments",
+    {
+      owner: "STForScratch",
+      repo: "ScratchTools",
+      issue_number: issue,
+      body,
+
+      headers: {
+        "x-github-api-version": "2022-11-28",
+      },
+    }
+  );
 }
 
-app.post("/comment/", jsonParser, async function(req, res) {
+app.post("/comment/", jsonParser, async function (req, res) {
   if (req.body.server === process.env.server) {
-    commentOnIssue(req.body.issue.toString(), req.body.content.toString())
+    commentOnIssue(req.body.issue.toString(), req.body.content.toString());
     res.send({
       success: true,
-    })
+    });
   }
-})
+});
 
 app.get("/index.js", function (req, res) {
   res.send({
@@ -253,7 +255,7 @@ app.post("/uninstall/", jsonParser, async function (req, res) {
   if (req.body.server === process.env.server) {
     if (
       !recentUninstalls.find(
-        (u) => u.ip === req.body.ip && u.time > (Date.now() - 43200000)
+        (u) => u.ip === req.body.ip && u.time > Date.now() - 43200000
       )
     ) {
       recentUninstalls.push({
@@ -271,7 +273,11 @@ app.post("/uninstall/", jsonParser, async function (req, res) {
           },
           {
             name: "Installed",
-            value: `<t:${req.body.timeInstalled ? Math.round(Number(req.body.timeInstalled) / 1000).toString() : "Unknown Time"}>`,
+            value: `<t:${
+              req.body.timeInstalled
+                ? Math.round(Number(req.body.timeInstalled) / 1000).toString()
+                : "Unknown Time"
+            }>`,
             inline: false,
           },
           {
@@ -413,30 +419,33 @@ app.post("/verified-feedback/", jsonParser, async function (req, res) {
   }
 });
 
-app.get("/tutorials/", async function(req, res) {
+app.get("/tutorials/", async function (req, res) {
   res.send([
     {
       title: "Create a Multiplayer Game",
-      description: "Make a multiplayer cloud game, where Scratchers can play together!",
+      description:
+        "Make a multiplayer cloud game, where Scratchers can play together!",
       id: "1JTgg4WVAX8",
     },
     {
       title: "Make a Platformer",
-      description: "Platformers are very popular on Scratch, now you can make your own!",
-      id: "aUmXJJww7KE"
+      description:
+        "Platformers are very popular on Scratch, now you can make your own!",
+      id: "aUmXJJww7KE",
     },
     {
       title: "Geometry Dash",
-      description: "Make your very own Geometry Dash game using the Scratch editor!",
-      id: "FYZ1bfB1nho"
+      description:
+        "Make your very own Geometry Dash game using the Scratch editor!",
+      id: "FYZ1bfB1nho",
     },
     {
       title: "Flappy Bird",
       description: "Learn how to make the classic Flappy Bird game on Scratch!",
-      id: "Rg_UIn5vii8"
-    }
-  ])
-})
+      id: "Rg_UIn5vii8",
+    },
+  ]);
+});
 
 app.get("/projects/:id/", async function (req, res) {
   let data = await (
@@ -641,7 +650,7 @@ app.get("/isbeta/:username/", async function (req, res) {
   }
 });
 
-app.get("/trending/", function(req, res) {
+app.get("/trending/", function (req, res) {
   res.send([
     "comment-on-closed-profile",
     "pause-audio",
@@ -658,16 +667,17 @@ app.get("/trending/", function(req, res) {
     "get-project-tags",
     "project-timer",
     "scrollable-list-items",
-    "admin-notifications"
-  ])
-})
+    "admin-notifications",
+  ]);
+});
 
-app.get("/news/", async function(req, res) {
+app.get("/news/", async function (req, res) {
   res.send({
     title: "We want to know your favorite feature!",
-    description: "If you want to be featured in a ScratchTools YouTube video, either submit feedback here or open a support ticket using the buttons below and tell us your favorite feature!"
-  })
-})
+    description:
+      "If you want to be featured in a ScratchTools YouTube video, either submit feedback here or open a support ticket using the buttons below and tell us your favorite feature!",
+  });
+});
 
 app.get("/get-token/", async function (req, res) {
   if (
@@ -1094,6 +1104,7 @@ app.post("/setstatus/", jsonParser, async function (req, res) {
             username: "ScratchTools Webserver Moderation",
             avatarURL:
               "https://raw.githubusercontent.com/STForScratch/ScratchTools/main/extras/icons/beta/beta128.png",
+            threadId: "1191072961881444413",
           });
         } else {
           await client.db("plus").collection("users").insertOne({
@@ -1106,6 +1117,7 @@ app.post("/setstatus/", jsonParser, async function (req, res) {
             username: "ScratchTools Webserver Moderation",
             avatarURL:
               "https://raw.githubusercontent.com/STForScratch/ScratchTools/main/extras/icons/beta/beta128.png",
+            threadId: "1191072961881444413",
           });
         }
         res.send({
@@ -1153,6 +1165,7 @@ app.post("/setdisplay/", jsonParser, async function (req, res) {
             username: "ScratchTools Webserver Moderation",
             avatarURL:
               "https://raw.githubusercontent.com/STForScratch/ScratchTools/main/extras/icons/beta/beta128.png",
+            threadId: "1191072961881444413",
           });
         } else {
           await client
@@ -1181,6 +1194,7 @@ app.post("/setdisplay/", jsonParser, async function (req, res) {
             username: "ScratchTools Webserver Moderation",
             avatarURL:
               "https://raw.githubusercontent.com/STForScratch/ScratchTools/main/extras/icons/beta/beta128.png",
+            threadId: "1191072961881444413",
           });
         }
       } else if (token.user !== req.body.name) {
@@ -1198,6 +1212,7 @@ app.post("/setdisplay/", jsonParser, async function (req, res) {
           username: "ScratchTools Webserver Moderation",
           avatarURL:
             "https://raw.githubusercontent.com/STForScratch/ScratchTools/main/extras/icons/beta/beta128.png",
+          threadId: "1191072961881444413",
         });
       }
       res.send({
@@ -1215,11 +1230,11 @@ app.post("/setdisplay/", jsonParser, async function (req, res) {
   }
 });
 
-app.get("/cloud-status/", async function(req, res) {
+app.get("/cloud-status/", async function (req, res) {
   res.send({
     available: false,
-  })
-})
+  });
+});
 
 app.post("/verify/", jsonParser, async function (req, res) {
   if (req.body.secret && typeof req.body.secret === "string") {
