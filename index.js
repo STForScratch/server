@@ -403,6 +403,7 @@ app.post("/verified-feedback/", jsonParser, async function (req, res) {
         avatarURL:
           "https://raw.githubusercontent.com/STForScratch/ScratchTools/main/extras/icons/beta/beta128.png",
         embeds: [embed],
+        threadId: "1191073295014035516",
       });
       res.send({
         success: true,
@@ -850,6 +851,7 @@ app.post("/web-feedback/", jsonParser, async function (req, res) {
       avatarURL:
         "https://raw.githubusercontent.com/STForScratch/ScratchTools/main/extras/icons/beta/beta128.png",
       embeds: [embed],
+      threadId: "1191073295014035516",
     });
     res.send({
       success: true,
@@ -909,6 +911,7 @@ app.post("/feedback/", jsonParser, async function (req, res) {
       avatarURL:
         "https://raw.githubusercontent.com/STForScratch/ScratchTools/main/extras/icons/beta/beta128.png",
       embeds: [embed],
+      threadId: "1191073295014035516",
     });
     res.send({
       success: true,
