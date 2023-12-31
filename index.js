@@ -290,6 +290,7 @@ app.post("/uninstall/", jsonParser, async function (req, res) {
         avatarURL:
           "https://raw.githubusercontent.com/STForScratch/ScratchTools/main/extras/icons/beta/beta128.png",
         embeds: [embed],
+        threadId: "1191067778761883769",
       });
     }
     res.send({
