@@ -1157,23 +1157,6 @@ app.post("/setdisplay/", jsonParser, async function (req, res) {
       code: req.body.token,
     });
     if (token) {
-      await client
-        .db("verify")
-        .collection("tokens")
-        .updateOne(
-          {
-            expired: false,
-            code: req.body.token,
-          },
-          {
-            $set: {
-              expired: true,
-            },
-          },
-          {
-            upsert: true,
-          }
-        );
       var found = await client.db("displaynames").collection("users").findOne({
         username: token.user,
       });
