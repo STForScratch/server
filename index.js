@@ -943,7 +943,7 @@ app.post("/feedback/", jsonParser, async function (req, res) {
 });
 
 app.get("/submission/", async function (req, res) {
-  let SERVER_URL = "http://localhost:3000";
+  let SERVER_URL = "https://data.scratchtools.app";
   if (req.query.privateCode) {
     let data = await (
       await fetch(
