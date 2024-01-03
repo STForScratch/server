@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>The ScratchTools Awards</title>
+  </head>
+  <body>
+    <div class="nav">
+      <a href="/" class="title">
+        <img class="logo" src="https://www.scratchtools.app/images/logo.svg" />
+        <span class="titlespan">The ScratchTools Awards</span>
+      </a>
+    </div>
+    <h1>Submit a Project</h1>
+    <p style="margin-left: 15%; margin-right: 15%">
+      Select a project out of all your projects from the past year for The
+      ScratchTools Awards. You may only submit one project and it must remain
+      shared for the duration of the contest.
+      <b style="color: #ff9f00"
+        >Submissions close on January 28th at 5 PM PST (GMT-8).</b
+      >
+    </p>
+    <div class="selected">
+      <h2>Currently Selected</h2>
+      <img class="thumbnail" />
+      <div class="info">
+        <h2></h2>
+        <p></p>
+      </div>
+    </div>
+    <h2>Other Projects</h2>
+    <div class="options"></div>
+    <p>
+      Please keep in mind that only projects shared since February 22nd, 2023
+      are shown.
+    </p>
+  </body>
+  <script>
+    async function loadData() {
+      let selected = "<%= selected %>";
+      let data =
+        selected !== ""
+          ? await (await fetch("/project/<%= selected %>/")).json()
+          : {};
+      console.log(data);
+      let all = await (await fetch(`/user-projects/<%= username %>`)).json();
+      document.querySelector(".info h2").textContent =
+        data.title !== undefined
+          ? data.title || "No title."
+          : "No project selected";
+      document.querySelector(".info p").textContent =
+        data.title !== undefined
+          ? data.instructions || data.description || "No description."
+          : "Select a project from below to submit one for the competition.";
+      let { rgb } = await (
+        await fetch(
+          `/color/?img=${
+            selected
+              ? "https://uploads.scratch.mit.edu/get_image/project/<%= selected %>_480x360.png"
+              : "https://i.ibb.co/7KGq0dB/no-project-selected-01.png"
+          }`
+        )
+      ).json();
+      document.querySelector(".info").style.backgroundColor = rgb;
+      if (data.image) {
+        document.querySelector(".thumbnail").src = data.image;
+      } else {
+        document.querySelector(".thumbnail").src =
+          "https://i.ibb.co/7KGq0dB/no-project-selected-01.png";
+      }
+      all.forEach(function (el) {
+        let div = document.createElement("div");
+        div.className = "project-option";
+
+        let img = document.createElement("img");
+        img.src = el.image;
+        div.appendChild(img);
+
+        let info = document.createElement("div");
+        let h2 = document.createElement("h3");
+        h2.textContent = el.title || "No title.";
+        let p = document.createElement("p");
+        p.textContent = el.instructions || el.description || "No description.";
+        div.appendChild(info);
+        info.appendChild(h2);
+        info.appendChild(p);
+
+        if (el.id === Number("<%= selected %>")) {
+          div.classList.add("selected");
+        }
+
+        document.querySelector(".options").appendChild(div);
+
+        div.addEventListener("click", async function () {
+          let data = await (
+            await fetch("/submit-project/", {
+              method: "POST",
+              headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ token: "<%= token %>", project: el.id }),
+            })
+          ).json();
+          if (data.error) {
+            alert(data.error);
+          } else {
+            document.querySelector(".thumbnail").src = el.image;
+            let { rgb } = await (
+              await fetch(
+                `/color/?img=${
+                  "https://uploads.scratch.mit.edu/get_image/project/" +
+                  el.id.toString() +
+                  "_480x360.png"
+                }`
+              )
+            ).json();
+            document.querySelector(".info").style.backgroundColor = rgb;
+            document.querySelector(".info h2").textContent =
+              el.title || "No title.";
+            document.querySelector(".info p").textContent =
+              el.instructions || el.description || "No description.";
+            document
+              .querySelector(".project-option.selected")
+              ?.classList.remove("selected");
+            div.classList.add("selected");
+          }
+        });
+      });
+    }
+    loadData();
+  </script>
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap");
+
+    :root {
+      --brand: #ff9f00;
+    }
+
+    body {
+      font-family: "Inter", sans-serif;
+      text-align: center;
+      overflow-x: hidden;
+      padding-top: 6rem;
+    }
+
+    .nav {
+      text-align: left;
+      background-color: var(--brand);
+      position: fixed;
+      left: 0px;
+      top: 0px;
+      width: 100vw;
+      padding: 1rem;
+      padding-left: 8rem;
+      padding-right: 8rem;
+      color: white;
+      font-size: 1.25rem;
+      padding-bottom: 0.75rem;
+      z-index: 99999999999999;
+    }
+
+    .project-option.selected > div {
+      background-color: #ff9f00;
+      color: white;
+    }
+
+    .nav a.title {
+      font-weight: 600;
+    }
+    .nav a {
+      text-decoration: none;
+      color: white;
+    }
+
+    .nav .logo {
+      height: 2.5rem;
+    }
+
+    .nav .title span {
+      position: relative;
+      top: -0.75rem;
+      margin-left: 0.5rem;
+    }
+
+    .info * {
+      word-wrap: break-word;
+    }
+
+    .thumbnail {
+      height: 14rem;
+      border-top-left-radius: 1rem;
+      border-bottom-left-radius: 1rem;
+    }
+
+    .info {
+      text-align: left;
+      display: inline-block;
+      width: 20rem;
+      height: 14rem;
+      overflow-y: scroll;
+      padding-left: 1rem;
+      padding-right: 1rem;
+      color: white;
+      border-top-right-radius: 1rem;
+      border-bottom-right-radius: 1rem;
+      margin-left: -0.3rem;
+    }
+
+    .project-option img {
+      height: 10rem;
+      border-top-left-radius: 1rem;
+      border-bottom-left-radius: 1rem;
+    }
+
+    .project-option div {
+      text-align: left;
+      display: inline-block;
+      width: 15rem;
+      height: 10rem;
+      overflow-y: scroll;
+      padding-left: 1rem;
+      padding-right: 1rem;
+      color: black;
+      background-color: #e6e6e6;
+      border-top-right-radius: 1rem;
+      border-bottom-right-radius: 1rem;
+      margin-left: -0.3rem;
+    }
+
+    .project-option {
+      display: inline-block;
+      margin: 0.5rem;
+      cursor: pointer;
+      transition: transform 0.3s, opacity 0.3s;
+      opacity: 0.7;
+    }
+
+    .project-option p {
+      font-size: 0.9rem;
+    }
+
+    .project-option:hover {
+      opacity: 1;
+      transform: scale(105%);
+    }
+  </style>
+</html>

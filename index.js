@@ -12,6 +12,9 @@ var bodyParser = require("body-parser");
 var jsonParser = bodyParser.json();
 app = express();
 
+let Vibrant = require("node-vibrant");
+let START_TIME = 1677052800000
+
 const PRIVATE_KEY = atob(process.env.github);
 const APP_ID = "284321";
 const INSTALLATION_ID = "33371842";
@@ -612,6 +615,22 @@ app.get("/themes/scratchtools/", async function (req, res) {
   res.send(themes);
 });
 
+app.get("/color/", async function (req, res) {
+  if (req.query.img) {
+    var rgb = null;
+    try {
+      let colors = await Vibrant.from(req.query.img).getPalette();
+      rgb = `rgb(${colors.Vibrant._rgb[0].toString()}, ${colors.Vibrant._rgb[1].toString()}, ${colors.Vibrant._rgb[2].toString()})`;
+    } catch (err) {
+      console.log(err);
+      rgb = "white";
+    }
+    res.send({
+      rgb,
+    });
+  }
+});
+
 app.get("/events/:code/", function (req, res) {
   if (req.params.code === process.env.server) {
     res.send(events);
@@ -921,6 +940,144 @@ app.post("/feedback/", jsonParser, async function (req, res) {
       error: "Missing parameters.",
     });
   }
+});
+
+app.get("/submission/", async function (req, res) {
+  let SERVER_URL = "http://localhost:3000";
+  if (req.query.privateCode) {
+    let data = await (
+      await fetch(
+        `https://auth.itinerary.eu.org/api/auth/verifyToken?privateCode=${req.query.privateCode}`
+      )
+    ).json();
+    if (data.valid) {
+      let token = makeId(100);
+      await client.db("verify").collection("tokens").insertOne({
+        time: Date.now(),
+        user: data.username,
+        code: token,
+        expired: false,
+      });
+      let selected = await client.db("awards").collection("submissions-23").findOne({
+        user: data.username,
+      })
+      res.render(path.join(__dirname, "/submission.html"), {
+        token,
+        username: data.username,
+        selected: selected?.project || "",
+      });
+    } else {
+      res.redirect(
+        `https://auth.itinerary.eu.org/auth/?redirect=${btoa(
+          SERVER_URL + "/submission/"
+        )}&name=ScratchTools`
+      );
+    }
+  } else {
+    res.redirect(
+      `https://auth.itinerary.eu.org/auth/?redirect=${btoa(
+        SERVER_URL + "/submission/"
+      )}&name=ScratchTools`
+    );
+  }
+});
+
+app.post("/submit-project/", jsonParser, async function(req, res) {
+  if (req.body.token && req.body.project) {
+    try {
+    let data = await (await fetch(`https://trampoline.turbowarp.org/api/projects/${req.body.project}/`)).json()
+    if (data.title !== undefined) {
+      if (new Date(data.history.shared).getTime() > START_TIME) {
+        let token = await client.db("verify").collection("tokens").findOne({
+          expired: false,
+          code: req.body.token,
+        });
+        if (token) {
+          if (token.user === data.author.username) {
+            await client.db("awards").collection("submissions-23").updateOne({
+              user: data.author.username,
+            },
+            {
+              $set: {
+                project: data.id.toString(),
+                user: data.author.username,
+                time: Date.now(),
+              }
+            },
+            {
+              upsert: true,
+            })
+            res.send({
+              success: true,
+            })
+          } else {
+            res.send({
+              error: "Project does not belong to you."
+            })
+          }
+        } else {
+          res.send({
+            error: "Not logged in."
+          })
+        }
+      } else {
+        res.send({
+          error: "Project is too old."
+        })
+      }
+    } else {
+      res.send({
+        error: "Project is not shared."
+      })
+    }
+    } catch(err) {
+      res.send({
+        error: "An error occurred."
+      })
+    }
+  } else {
+    res.send({
+      error: "Missing token or project."
+    })
+  }
+})
+
+app.get("/user-projects/:user/", async function(req, res) {
+  let projects = await getProjects(req.params.user)
+  res.send(projects)
+})
+
+async function getProjects(user) {
+  let projects = [];
+  let offset = 0;
+  let keepGoing = true;
+
+  while (keepGoing) {
+    let data = await (
+      await fetch(
+        `https://explodingstar.pythonanywhere.com/scratch/api/?endpoint=/users/${user}/projects?offset=${offset.toString()}`
+      )
+    ).json();
+    data = data.filter(
+      (el) => new Date(el.history.shared).getTime() > START_TIME
+    );
+    projects.push(...data);
+    offset += 20;
+    if (data.length !== 20) {
+      keepGoing = false;
+    }
+  }
+
+  return projects;
+}
+
+app.get("/project/:id/", async function (req, res) {
+  let data = await (
+    await fetch(
+      `https://trampoline.turbowarp.org/api/projects/${req.params.id}/`
+    )
+  ).json();
+  res.send(data);
 });
 
 app.post("/online/", jsonParser, async function (req, res) {
