@@ -943,6 +943,7 @@ app.post("/feedback/", jsonParser, async function (req, res) {
 });
 
 app.get("/submission/", async function (req, res) {
+  if (Date.now() > 1705237200000) {
   let SERVER_URL = "https://data.scratchtools.app";
   if (req.query.privateCode) {
     let data = await (
@@ -980,9 +981,13 @@ app.get("/submission/", async function (req, res) {
       )}&name=ScratchTools`
     );
   }
+} else {
+  res.sendFile(path.join(__dirname, "/closed.html"))
+}
 });
 
 app.post("/submit-project/", jsonParser, async function(req, res) {
+  if (Date.now() > 1705237200000) {
   if (req.body.token && req.body.project) {
     try {
     let data = await (await fetch(`https://trampoline.turbowarp.org/api/projects/${req.body.project}/`)).json()
@@ -1040,6 +1045,7 @@ app.post("/submit-project/", jsonParser, async function(req, res) {
       error: "Missing token or project."
     })
   }
+}
 })
 
 app.get("/user-projects/:user/", async function(req, res) {

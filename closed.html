@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>The ScratchTools Awards</title>
+  </head>
+  <body>
+    <div class="nav">
+      <a href="/" class="title">
+        <img class="logo" src="https://www.scratchtools.app/images/logo.svg" />
+        <span class="titlespan">The ScratchTools Awards</span>
+      </a>
+    </div>
+    <h1>Not Yet!</h1>
+    <p style="margin-left: 15%; margin-right: 15%">
+      The ScratchTools Awards don't accept submissions until January 14th, 2024 at 5:00 PM PST. Check back then to submit your project!
+    </p>
+  </body>
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap");
+
+    :root {
+      --brand: #ff9f00;
+    }
+
+    body {
+      font-family: "Inter", sans-serif;
+      text-align: center;
+      overflow-x: hidden;
+      padding-top: 6rem;
+    }
+
+    .nav {
+      text-align: left;
+      background-color: var(--brand);
+      position: fixed;
+      left: 0px;
+      top: 0px;
+      width: 100vw;
+      padding: 1rem;
+      padding-left: 8rem;
+      padding-right: 8rem;
+      color: white;
+      font-size: 1.25rem;
+      padding-bottom: 0.75rem;
+      z-index: 99999999999999;
+    }
+
+    .project-option.selected > div {
+      background-color: #ff9f00;
+      color: white;
+    }
+
+    .nav a.title {
+      font-weight: 600;
+    }
+    .nav a {
+      text-decoration: none;
+      color: white;
+    }
+
+    .nav .logo {
+      height: 2.5rem;
+    }
+
+    .nav .title span {
+      position: relative;
+      top: -0.75rem;
+      margin-left: 0.5rem;
+    }
+
+    .info * {
+      word-wrap: break-word;
+    }
+
+    .thumbnail {
+      height: 14rem;
+      border-top-left-radius: 1rem;
+      border-bottom-left-radius: 1rem;
+    }
+
+    .info {
+      text-align: left;
+      display: inline-block;
+      width: 20rem;
+      height: 14rem;
+      overflow-y: scroll;
+      padding-left: 1rem;
+      padding-right: 1rem;
+      color: white;
+      border-top-right-radius: 1rem;
+      border-bottom-right-radius: 1rem;
+      margin-left: -0.3rem;
+    }
+
+    .project-option img {
+      height: 10rem;
+      border-top-left-radius: 1rem;
+      border-bottom-left-radius: 1rem;
+    }
+
+    .project-option div {
+      text-align: left;
+      display: inline-block;
+      width: 15rem;
+      height: 10rem;
+      overflow-y: scroll;
+      padding-left: 1rem;
+      padding-right: 1rem;
+      color: black;
+      background-color: #e6e6e6;
+      border-top-right-radius: 1rem;
+      border-bottom-right-radius: 1rem;
+      margin-left: -0.3rem;
+    }
+
+    .project-option {
+      display: inline-block;
+      margin: 0.5rem;
+      cursor: pointer;
+      transition: transform 0.3s, opacity 0.3s;
+      opacity: 0.7;
+    }
+
+    .project-option p {
+      font-size: 0.9rem;
+    }
+
+    .project-option:hover {
+      opacity: 1;
+      transform: scale(105%);
+    }
+  </style>
+</html>
