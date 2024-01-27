@@ -1,3 +1,5 @@
+let BANNED_USERS = JSON.parse(process.env.banned)
+
 const { WebhookClient, EmbedBuilder } = require("discord.js");
 const webhookClient = new WebhookClient({
   url: process.env.webhook,
@@ -1267,6 +1269,7 @@ app.post("/setstatus/", jsonParser, async function (req, res) {
         code: req.body.token,
       });
       if (token) {
+        if (!BANNED_USERS.includes(token.user)) return res.send({ error: "You've been banned. "});
         var found = await client.db("plus").collection("users").findOne({
           username: token.user,
         });
@@ -1341,6 +1344,7 @@ app.post("/setdisplay/", jsonParser, async function (req, res) {
       code: req.body.token,
     });
     if (token) {
+      if (!BANNED_USERS.includes(token.user)) return res.send({ error: "You've been banned. "});
       var found = await client.db("displaynames").collection("users").findOne({
         username: token.user,
       });
