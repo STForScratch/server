@@ -968,6 +968,8 @@ app.post("/feedback/", jsonParser, async function (req, res) {
 });
 
 app.get("/submission/", async function (req, res) {
+  res.redirect("https://youtu.be/sGfxaLhyQIs")
+  return;
   if (Date.now() > 1705237200000) {
   let SERVER_URL = "https://data.scratchtools.app";
   if (req.query.privateCode) {
