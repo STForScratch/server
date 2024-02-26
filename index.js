@@ -967,6 +967,126 @@ app.post("/feedback/", jsonParser, async function (req, res) {
   }
 });
 
+const { OpenAI } = require("openai");
+
+const openai = new OpenAI({
+  apiKey: process.env.openai,
+});
+
+let ALL_AI_REQUESTS = [];
+let FAILED_RESPONSES = [
+  "Sorry, but you've been ratelimited. You can try asking Scatt AI more questions later, but please wait a moment.",
+  "You've been talking a lot to Scatt AI, and he got tired. Please wait a little while before continuing.",
+  "Sorry, but Scatt AI had to take a break. You can ask more questions again in a little bit.",
+];
+
+app.post("/ai-query/", jsonParser, async function (req, res) {
+  let requests = ALL_AI_REQUESTS.filter(
+    (rq) =>
+      (rq.time > Date.now() - 600000 * 2 &&
+        rq.ip === req.headers["x-forwarded-for"]) ||
+      req.socket.remoteAddress
+  );
+  if (requests.length >= 10) {
+    res.send({
+      success: true,
+      response:
+        FAILED_RESPONSES[Math.floor(Math.random() * FAILED_RESPONSES.length)],
+    });
+  } else {
+    if (
+      req.body.search &&
+      typeof req.body.search === "string" &&
+      req.body.username
+    ) {
+      let data = await getSearch(req.body.search, req.body.username);
+      ALL_AI_REQUESTS.push({
+        ip: req.headers["x-forwarded-for"] || req.socket.remoteAddress,
+        time: Date.now(),
+      });
+      res.send({
+        success: true,
+        response: data,
+      });
+    } else {
+      res.send({
+        error: "missing info",
+      });
+    }
+  }
+});
+
+async function getSearch(searchQuery, username) {
+  try {
+    return new Promise(async (resolve) => {
+      const thread = await openai.beta.threads.create();
+
+      const message = await openai.beta.threads.messages.create(thread.id, {
+        role: "user",
+        content: searchQuery,
+      });
+
+      const run = await openai.beta.threads.runs.create(thread.id, {
+        assistant_id: "asst_W9PNwqIde1bJmKgH9Vs9fkw8",
+        instructions: "Please address the user as " + username + ".",
+      });
+
+      let interval = setInterval(async function () {
+        let runInfo = await openai.beta.threads.runs.retrieve(
+          thread.id,
+          run.id
+        );
+        if (runInfo.status === "completed") {
+          clearInterval(interval);
+          const messages = await openai.beta.threads.messages.list(thread.id);
+
+          resolve(messages.body.data[0].content[0].text?.value || "");
+        } else if (runInfo.status === "requires_action") {
+          runInfo.required_action.submit_tool_outputs.tool_calls.forEach(
+            async function (call) {
+              if (call.function.name === "get_projects") {
+                let { query } = JSON.parse(call.function.arguments);
+                console.log(query);
+                let data = await (
+                  await fetch(
+                    `https://explodingstar.pythonanywhere.com/scratch/api/?endpoint=/search/projects%3Flimit=3%26offset=0%26language=en%26mode=popular%26q=${query}`
+                  )
+                ).json();
+                data.length = 3;
+
+                let projects = [];
+                for (var i in data) {
+                  projects.push({
+                    name: data[i].title,
+                    url: `/projects/${data[i].id}/`,
+                  });
+                }
+                clearInterval(interval);
+                resolve(projects);
+
+                await openai.beta.threads.runs.submitToolOutputs(
+                  thread.id,
+                  run.id,
+                  {
+                    tool_outputs: [
+                      {
+                        tool_call_id: call.id,
+                        output: `{success:true}`,
+                      },
+                    ],
+                  }
+                );
+              }
+            }
+          );
+        }
+      }, 2000);
+    });
+  } catch (err) {
+    return "An error occurred.";
+  }
+}
+
 app.get("/submission/", async function (req, res) {
   res.redirect("https://youtu.be/sGfxaLhyQIs")
   return;
