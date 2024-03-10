@@ -1087,6 +1087,25 @@ async function getSearch(searchQuery, username) {
   }
 }
 
+app.get("/pfp/:id/", async function (req, res) {
+  try {
+    const imageUrl = `https://uploads.scratch.mit.edu/get_image/user/${req.params.id}_60x60.png`;
+    const response = await fetch(imageUrl);
+    if (!response.ok) {
+      throw new Error("Failed to fetch image");
+    }
+    const buffer = await response.buffer();
+    res.writeHead(200, {
+      "Content-Type": response.headers.get("content-type"),
+      "Content-Length": buffer.length,
+    });
+    res.end(buffer);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
 app.get("/submission/", async function (req, res) {
   res.redirect("https://youtu.be/sGfxaLhyQIs")
   return;
