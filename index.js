@@ -278,11 +278,10 @@ app.post("/uninstall/", jsonParser, async function (req, res) {
           },
           {
             name: "Installed",
-            value: `<t:${
-              req.body.timeInstalled
+            value: `<t:${req.body.timeInstalled
                 ? Math.round(Number(req.body.timeInstalled) / 1000).toString()
                 : "Unknown Time"
-            }>`,
+              }>`,
             inline: false,
           },
           {
@@ -499,7 +498,7 @@ app.post("/support/", jsonParser, async function (req, res) {
                 content: req.body.content,
               })
             );
-          } catch (err) {}
+          } catch (err) { }
         });
         res.send({
           success: true,
@@ -522,7 +521,7 @@ app.post("/support/", jsonParser, async function (req, res) {
                 options: req.body.options,
               })
             );
-          } catch (err) {}
+          } catch (err) { }
         });
         res.send({
           success: true,
@@ -543,7 +542,7 @@ app.post("/support/", jsonParser, async function (req, res) {
                 features: "",
               })
             );
-          } catch (err) {}
+          } catch (err) { }
         });
         res.send({
           success: true,
@@ -572,7 +571,7 @@ app.post("/support/", jsonParser, async function (req, res) {
                   features: found.data.join("."),
                 })
               );
-            } catch (err) {}
+            } catch (err) { }
           });
           res.send({
             success: true,
@@ -597,7 +596,7 @@ app.post("/support/", jsonParser, async function (req, res) {
                 type: "reload",
               })
             );
-          } catch (err) {}
+          } catch (err) { }
         });
         res.send({
           success: true,
@@ -617,7 +616,7 @@ app.post("/support/", jsonParser, async function (req, res) {
                 type: "downloadSettings",
               })
             );
-          } catch (err) {}
+          } catch (err) { }
         });
         res.send({
           success: true,
@@ -1110,29 +1109,36 @@ app.get("/submission/", async function (req, res) {
   res.redirect("https://youtu.be/sGfxaLhyQIs")
   return;
   if (Date.now() > 1705237200000) {
-  let SERVER_URL = "https://data.scratchtools.app";
-  if (req.query.privateCode) {
-    let data = await (
-      await fetch(
-        `https://auth.itinerary.eu.org/api/auth/verifyToken?privateCode=${req.query.privateCode}`
-      )
-    ).json();
-    if (data.valid) {
-      let token = makeId(100);
-      await client.db("verify").collection("tokens").insertOne({
-        time: Date.now(),
-        user: data.username,
-        code: token,
-        expired: false,
-      });
-      let selected = await client.db("awards").collection("submissions-23").findOne({
-        user: data.username,
-      })
-      res.render(path.join(__dirname, "/submission.html"), {
-        token,
-        username: data.username,
-        selected: selected?.project || "",
-      });
+    let SERVER_URL = "https://data.scratchtools.app";
+    if (req.query.privateCode) {
+      let data = await (
+        await fetch(
+          `https://auth.itinerary.eu.org/api/auth/verifyToken?privateCode=${req.query.privateCode}`
+        )
+      ).json();
+      if (data.valid) {
+        let token = makeId(100);
+        await client.db("verify").collection("tokens").insertOne({
+          time: Date.now(),
+          user: data.username,
+          code: token,
+          expired: false,
+        });
+        let selected = await client.db("awards").collection("submissions-23").findOne({
+          user: data.username,
+        })
+        res.render(path.join(__dirname, "/submission.html"), {
+          token,
+          username: data.username,
+          selected: selected?.project || "",
+        });
+      } else {
+        res.redirect(
+          `https://auth.itinerary.eu.org/auth/?redirect=${btoa(
+            SERVER_URL + "/submission/"
+          )}&name=ScratchTools`
+        );
+      }
     } else {
       res.redirect(
         `https://auth.itinerary.eu.org/auth/?redirect=${btoa(
@@ -1141,80 +1147,73 @@ app.get("/submission/", async function (req, res) {
       );
     }
   } else {
-    res.redirect(
-      `https://auth.itinerary.eu.org/auth/?redirect=${btoa(
-        SERVER_URL + "/submission/"
-      )}&name=ScratchTools`
-    );
+    res.sendFile(path.join(__dirname, "/closed.html"))
   }
-} else {
-  res.sendFile(path.join(__dirname, "/closed.html"))
-}
 });
 
-app.post("/submit-project/", jsonParser, async function(req, res) {
+app.post("/submit-project/", jsonParser, async function (req, res) {
   if (Date.now() > 1705237200000) {
-  if (req.body.token && req.body.project) {
-    try {
-    let data = await (await fetch(`https://trampoline.turbowarp.org/api/projects/${req.body.project}/`)).json()
-    if (data.title !== undefined) {
-      if (new Date(data.history.shared).getTime() > START_TIME) {
-        let token = await client.db("verify").collection("tokens").findOne({
-          expired: false,
-          code: req.body.token,
-        });
-        if (token) {
-          if (token.user === data.author.username) {
-            await client.db("awards").collection("submissions-23").updateOne({
-              user: data.author.username,
-            },
-            {
-              $set: {
-                project: data.id.toString(),
-                user: data.author.username,
-                time: Date.now(),
+    if (req.body.token && req.body.project) {
+      try {
+        let data = await (await fetch(`https://trampoline.turbowarp.org/api/projects/${req.body.project}/`)).json()
+        if (data.title !== undefined) {
+          if (new Date(data.history.shared).getTime() > START_TIME) {
+            let token = await client.db("verify").collection("tokens").findOne({
+              expired: false,
+              code: req.body.token,
+            });
+            if (token) {
+              if (token.user === data.author.username) {
+                await client.db("awards").collection("submissions-23").updateOne({
+                  user: data.author.username,
+                },
+                  {
+                    $set: {
+                      project: data.id.toString(),
+                      user: data.author.username,
+                      time: Date.now(),
+                    }
+                  },
+                  {
+                    upsert: true,
+                  })
+                res.send({
+                  success: true,
+                })
+              } else {
+                res.send({
+                  error: "Project does not belong to you."
+                })
               }
-            },
-            {
-              upsert: true,
-            })
-            res.send({
-              success: true,
-            })
+            } else {
+              res.send({
+                error: "Not logged in."
+              })
+            }
           } else {
             res.send({
-              error: "Project does not belong to you."
+              error: "Project is too old."
             })
           }
         } else {
           res.send({
-            error: "Not logged in."
+            error: "Project is not shared."
           })
         }
-      } else {
+      } catch (err) {
         res.send({
-          error: "Project is too old."
+          error: "An error occurred."
         })
       }
     } else {
       res.send({
-        error: "Project is not shared."
+        error: "Missing token or project."
       })
     }
-    } catch(err) {
-      res.send({
-        error: "An error occurred."
-      })
-    }
-  } else {
-    res.send({
-      error: "Missing token or project."
-    })
   }
-}
 })
 
-app.get("/user-projects/:user/", async function(req, res) {
+app.get("/user-projects/:user/", async function (req, res) {
   let projects = await getProjects(req.params.user)
   res.send(projects)
 })
@@ -1522,11 +1521,10 @@ app.post("/setdisplay/", jsonParser, async function (req, res) {
               }
             );
           webhookClient.send({
-            content: `**🪪 Display Name:** @${
-              token.user
-            } just set their display name to \`${req.body.name
-              .replaceAll("\n", " ")
-              .replaceAll("`", "`")}\`.`,
+            content: `**🪪 Display Name:** @${token.user
+              } just set their display name to \`${req.body.name
+                .replaceAll("\n", " ")
+                .replaceAll("`", "`")}\`.`,
             username: "ScratchTools Webserver Moderation",
             avatarURL:
               "https://raw.githubusercontent.com/STForScratch/ScratchTools/main/extras/icons/beta/beta128.png",
@@ -1540,11 +1538,10 @@ app.post("/setdisplay/", jsonParser, async function (req, res) {
           displayName: req.body.name,
         });
         webhookClient.send({
-          content: `**🪪 Display Name:** @${
-            token.user
-          } just set their display name to \`${req.body.name
-            .replaceAll("\n", " ")
-            .replaceAll("`", "`")}\`.`,
+          content: `**🪪 Display Name:** @${token.user
+            } just set their display name to \`${req.body.name
+              .replaceAll("\n", " ")
+              .replaceAll("`", "`")}\`.`,
           username: "ScratchTools Webserver Moderation",
           avatarURL:
             "https://raw.githubusercontent.com/STForScratch/ScratchTools/main/extras/icons/beta/beta128.png",
@@ -1563,6 +1560,123 @@ app.post("/setdisplay/", jsonParser, async function (req, res) {
     res.send({
       error: "Missing parameters.",
     });
+  }
+});
+
+app.post("/pin/", jsonParser, async function (req, res) {
+  try {
+    if (
+      req.body.token &&
+      typeof req.body.token === "string" &&
+      req.body.author &&
+      typeof req.body.author === "string" &&
+      req.body.id &&
+      typeof req.body.id === "string" &&
+      req.body.content &&
+      typeof req.body.content === "string" &&
+      req.body.project &&
+      typeof req.body.project === "string"
+    ) {
+      var token = await client.db("verify").collection("tokens").findOne({
+        expired: false,
+        code: req.body.token,
+      });
+      if (token) {
+        if (BANNED_USERS.includes(token.user))
+          return res.send({ error: "You've been banned. " });
+        let data = await (await fetch(`https://trampoline.turbowarp.org/api/projects/${req.body.project}/`)).json()
+        if (data?.author?.username?.toLowerCase() === token.user.toLowerCase()) {
+          await client.db("pins").collection("projects").updateOne({
+            projectId: req.body.project,
+          },
+            {
+              $set: {
+                projectId: req.body.project,
+                author: req.body.author,
+                content: req.body.content,
+                commentId: req.body.id,
+              }
+            },
+            {
+              upsert: true,
+            })
+          webhookClient.send({
+            content: `**📌 Pinned Comment:** @${token.user
+              } just pinned a new comment to their project (${req.body.project}) with the content:  \`${req.body.content
+                .replaceAll("\n", " ")
+                .replaceAll("`", "`")}\`.`,
+            username: "ScratchTools Webserver Moderation",
+            avatarURL:
+              "https://raw.githubusercontent.com/STForScratch/ScratchTools/main/extras/icons/beta/beta128.png",
+            threadId: "1246514851803828255",
+          });
+          res.send({
+            success: true,
+          });
+        } else {
+          res.send({
+            error: "This project doesn't belong to you.",
+          });
+        }
+      } else {
+        res.send({
+          error: "Not found.",
+        });
+      }
+    } else {
+      res.send({
+        error: "Missing parameters.",
+      });
+    }
+  } catch (err) {
+    res.send({
+      error: "An error occurred."
+    })
+  }
+});
+
+app.post("/unpin/", jsonParser, async function (req, res) {
+  try {
+    if (
+      req.body.token &&
+      typeof req.body.token === "string" &&
+      req.body.project &&
+      typeof req.body.project === "string"
+    ) {
+      var token = await client.db("verify").collection("tokens").findOne({
+        expired: false,
+        code: req.body.token,
+      });
+      if (token) {
+        if (BANNED_USERS.includes(token.user))
+          return res.send({ error: "You've been banned. " });
+        let data = await (await fetch(`https://trampoline.turbowarp.org/api/projects/${req.body.project}/`)).json()
+        if (data?.author?.username?.toLowerCase() === token.user.toLowerCase()) {
+          await client.db("pins").collection("projects").deleteOne({
+            projectId: req.body.project,
+          })
+          res.send({
+            success: true,
+          });
+        } else {
+          res.send({
+            error: "This project doesn't belong to you.",
+          });
+        }
+      } else {
+        res.send({
+          error: "Not found.",
+        });
+      }
+    } else {
+      res.send({
+        error: "Missing parameters.",
+      });
+    }
+  } catch (err) {
+    res.send({
+      error: "An error occurred."
+    })
   }
 });
 
