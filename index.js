@@ -1563,6 +1563,14 @@ app.post("/setdisplay/", jsonParser, async function (req, res) {
   }
 });
 
+app.get("/pinned/:id/", async function(req, res) {
+  let pinned = await client.db("pins").collection("projects").findOne({
+    projectId: req.params.id,
+  })
+
+  res.send(pinned || {})
+})
+
 app.post("/pin/", jsonParser, async function (req, res) {
   try {
     if (
@@ -1595,6 +1603,7 @@ app.post("/pin/", jsonParser, async function (req, res) {
                 author: req.body.author,
                 content: req.body.content,
                 commentId: req.body.id,
+                time: Date.now(),
               }
             },
             {
