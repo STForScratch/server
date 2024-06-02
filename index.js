@@ -1571,6 +1571,14 @@ app.get("/pinned/:id/", async function(req, res) {
   res.send(pinned || {})
 })
 
+const fs = require("fs")
+
+app.get("/verified/:username/", function(req, res) {
+  let verified = JSON.parse(fs.readFileSync("./verified.json"))
+
+  return { verified: verified.includes(req.params.username.toLowerCase()) }
+})
+
 app.post("/pin/", jsonParser, async function (req, res) {
   try {
     if (
