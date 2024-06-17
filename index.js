@@ -1031,9 +1031,9 @@ app.get("/description/:project/", jsonParser, async function (req, res) {
   } else {
     let project = await (await fetch(`https://trampoline.turbowarp.org/api/projects/${req.params.project}/`)).json()
     if (
-      project && project.description
+      project && (project.description || project.instructions)
     ) {
-      let data = await getDescription(project.description);
+      let data = await getDescription(project.description + "\n" + project.instructions);
       ALL_AI_REQUESTS.push({
         ip: req.headers["x-forwarded-for"] || req.socket.remoteAddress,
         time: Date.now(),
