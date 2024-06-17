@@ -1015,6 +1015,73 @@ app.post("/ai-query/", jsonParser, async function (req, res) {
   }
 });
 
+app.get("/description/:project/", jsonParser, async function (req, res) {
+  let requests = ALL_AI_REQUESTS.filter(
+    (rq) =>
+      (rq.time > Date.now() - 600000 * 2 &&
+        rq.ip === req.headers["x-forwarded-for"]) ||
+      req.socket.remoteAddress
+  );
+  if (requests.length >= 10) {
+    res.send({
+      success: true,
+      response:
+        FAILED_RESPONSES[Math.floor(Math.random() * FAILED_RESPONSES.length)],
+    });
+  } else {
+    let project = await (await fetch(`https://trampoline.turbowarp.org/api/projects/${req.params.project}/`)).json()
+    if (
+      project && project.description
+    ) {
+      let data = await getDescription(project.description);
+      ALL_AI_REQUESTS.push({
+        ip: req.headers["x-forwarded-for"] || req.socket.remoteAddress,
+        time: Date.now(),
+      });
+      res.send({
+        success: true,
+        response: data,
+      });
+    } else {
+      res.send({
+        response: "Project information couldn't be found.",
+      });
+    }
+  }
+});
+
+async function getDescription(description) {
+  try {
+    return new Promise(async (resolve) => {
+      const thread = await openai.beta.threads.create();
+
+      const message = await openai.beta.threads.messages.create(thread.id, {
+        role: "user",
+        content: description,
+      });
+
+      const run = await openai.beta.threads.runs.create(thread.id, {
+        assistant_id: "asst_ox45ZHrUf8k4QTRBfrGgJINB",
+      });
+
+      let interval = setInterval(async function () {
+        let runInfo = await openai.beta.threads.runs.retrieve(
+          thread.id,
+          run.id
+        );
+        if (runInfo.status === "completed") {
+          clearInterval(interval);
+          const messages = await openai.beta.threads.messages.list(thread.id);
+
+          resolve(messages.body.data[0].content[0].text?.value || "");
+        }
+      }, 2000);
+    });
+  } catch (err) {
+    return "An error occurred.";
+  }
+}
+
 async function getSearch(searchQuery, username) {
   try {
     return new Promise(async (resolve) => {
