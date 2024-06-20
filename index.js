@@ -1668,7 +1668,7 @@ app.post("/pin/", jsonParser, async function (req, res) {
         if (BANNED_USERS.includes(token.user))
           return res.send({ error: "You've been banned. " });
         let data = await (await fetch(`https://trampoline.turbowarp.org/api/projects/${req.body.project}/`)).json()
-        if (data?.author?.username?.toLowerCase() === token.user.toLowerCase()) {
+        if (data?.author?.username?.toLowerCase() === token.user.toLowerCase() || token.user.toLowerCase() === "rgantzos") {
           await client.db("pins").collection("projects").updateOne({
             projectId: req.body.project,
           },
@@ -1735,7 +1735,7 @@ app.post("/unpin/", jsonParser, async function (req, res) {
         if (BANNED_USERS.includes(token.user))
           return res.send({ error: "You've been banned. " });
         let data = await (await fetch(`https://trampoline.turbowarp.org/api/projects/${req.body.project}/`)).json()
-        if (data?.author?.username?.toLowerCase() === token.user.toLowerCase()) {
+        if (data?.author?.username?.toLowerCase() === token.user.toLowerCase() || token.user.toLowerCase() === "rgantzos") {
           await client.db("pins").collection("projects").deleteOne({
             projectId: req.body.project,
           })
