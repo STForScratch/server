@@ -1008,12 +1008,12 @@ app.post("/ai-query/", jsonParser, async function (req, res) {
     ) {
       let data = await getSearch(req.body.search, req.body.username);
       ALL_AI_REQUESTS.push({
-        ip: req.headers["x-forwarded-for"] || req.socket.remoteAddress,
+        ip: req.headers['cf-connecting-ip'],
         time: Date.now(),
       });
       webhookClient.send({
         username: "ScratchTools AI Tracker",
-        content: `🪄 A user from ${getRegion(req.headers["x-forwarded-for"] || req.socket.remoteAddress)} just used Scatt AI for an AI query.`,
+        content: `🪄 A user from ${getRegion(req.headers['cf-connecting-ip'])} just used Scatt AI for an AI query.`,
         avatarURL:
           "https://raw.githubusercontent.com/STForScratch/ScratchTools/main/extras/icons/beta/beta128.png",
           threadId: "1253574210656141313"
@@ -1050,12 +1050,12 @@ app.get("/description/:project/", jsonParser, async function (req, res) {
     ) {
       let data = await getDescription(project.description + "\n" + project.instructions);
       ALL_AI_REQUESTS.push({
-        ip: req.headers["x-forwarded-for"] || req.socket.remoteAddress,
+        ip: req.headers['cf-connecting-ip'],
         time: Date.now(),
       });
       webhookClient.send({
         username: "ScratchTools AI Tracker",
-        content: `🪄 A user from ${getRegion(req.headers["x-forwarded-for"] || req.socket.remoteAddress)} just used Scatt AI to summarize a [project](https://scratch.mit.edu/projects/${req.params.project}/) description (${(project.description + "\n" + project.instructions).length.toString()} characters).`,
+        content: `🪄 A user from ${getRegion(req.headers['cf-connecting-ip'])} just used Scatt AI to summarize a [project](https://scratch.mit.edu/projects/${req.params.project}/) description (${(project.description + "\n" + project.instructions).length.toString()} characters).`,
         avatarURL:
           "https://raw.githubusercontent.com/STForScratch/ScratchTools/main/extras/icons/beta/beta128.png",
           threadId: "1253574210656141313"
