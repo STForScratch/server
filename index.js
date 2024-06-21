@@ -990,9 +990,8 @@ function getRegion(ip) {
 app.post("/ai-query/", jsonParser, async function (req, res) {
   let requests = ALL_AI_REQUESTS.filter(
     (rq) =>
-      (rq.time > Date.now() - 600000 * 2 &&
-        rq.ip === req.headers["x-forwarded-for"]) ||
-      req.socket.remoteAddress
+    (rq.time > Date.now() - 600000 * 2 &&
+      rq.ip === req.headers['cf-connecting-ip'])
   );
   if (requests.length >= 10) {
     res.send({
@@ -1033,9 +1032,8 @@ app.post("/ai-query/", jsonParser, async function (req, res) {
 app.get("/description/:project/", jsonParser, async function (req, res) {
   let requests = ALL_AI_REQUESTS.filter(
     (rq) =>
-      (rq.time > Date.now() - 600000 * 2 &&
-        rq.ip === req.headers["x-forwarded-for"]) ||
-      req.socket.remoteAddress
+    (rq.time > Date.now() - 600000 * 2 &&
+      rq.ip === req.headers['cf-connecting-ip'])
   );
   if (requests.length >= 10) {
     res.send({
