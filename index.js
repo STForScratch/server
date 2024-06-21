@@ -1469,11 +1469,11 @@ app.get("/status/:username/", async function (req, res) {
     });
     if (found) {
       res.send({
-        status: found.status ? "🍀" + found.status : "🍀",
+        status: found.status ? found.status : "🍪",
       });
     } else {
       res.send({
-        status: "🍀",
+        status: "🍪",
       });
     }
   } else {
