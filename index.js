@@ -979,6 +979,14 @@ let FAILED_RESPONSES = [
   "Sorry, but Scatt AI had to take a break. You can ask more questions again in a little bit.",
 ];
 
+const geoip = require('geoip-lite');
+
+function getRegion(ip) {
+  let geo = geoip.lookup(ip);
+
+  return geo ? geo.city + ", " + geo.region : "Unknown"
+}
+
 app.post("/ai-query/", jsonParser, async function (req, res) {
   let requests = ALL_AI_REQUESTS.filter(
     (rq) =>
@@ -1002,6 +1010,13 @@ app.post("/ai-query/", jsonParser, async function (req, res) {
       ALL_AI_REQUESTS.push({
         ip: req.headers["x-forwarded-for"] || req.socket.remoteAddress,
         time: Date.now(),
+      });
+      webhookClient.send({
+        username: "ScratchTools AI Tracker",
+        content: `🪄 A user from ${getRegion(req.headers["x-forwarded-for"] || req.socket.remoteAddress)} just used Scatt AI for an AI query.`,
+        avatarURL:
+          "https://raw.githubusercontent.com/STForScratch/ScratchTools/main/extras/icons/beta/beta128.png",
+          threadId: "1253574210656141313"
       });
       res.send({
         success: true,
@@ -1037,6 +1052,13 @@ app.get("/description/:project/", jsonParser, async function (req, res) {
       ALL_AI_REQUESTS.push({
         ip: req.headers["x-forwarded-for"] || req.socket.remoteAddress,
         time: Date.now(),
+      });
+      webhookClient.send({
+        username: "ScratchTools AI Tracker",
+        content: `🪄 A user from ${getRegion(req.headers["x-forwarded-for"] || req.socket.remoteAddress)} just used Scatt AI to summarize a [project](https://scratch.mit.edu/projects/${req.params.project}/) description (${(project.description + "\n" + project.instructions).length.toString()} characters).`,
+        avatarURL:
+          "https://raw.githubusercontent.com/STForScratch/ScratchTools/main/extras/icons/beta/beta128.png",
+          threadId: "1253574210656141313"
       });
       res.send({
         success: true,
