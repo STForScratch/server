@@ -1041,7 +1041,7 @@ app.get("/description/:project/", jsonParser, async function (req, res) {
     res.send({
       success: true,
       response:
-        FAILED_RESPONSES[Math.floor(Math.random() * FAILED_RESPONSES.length)] + ` If you would like us to eventually loosen the ratelimit and let you use this feature more often, please consider subscribing to our YouTube channel (youtube.com/@scratchtools), because AI does cost money.`,
+        FAILED_RESPONSES[Math.floor(Math.random() * FAILED_RESPONSES.length)] + ` If you would like us to eventually loosen the ratelimit and let you use this feature more often, please consider subscribing to our YouTube channel (youtube.com/@scratchtools), because AI does cost us money.`,
     });
   } else {
     let project = await (await fetch(`https://trampoline.turbowarp.org/api/projects/${req.params.project}/`)).json()
