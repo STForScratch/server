@@ -987,13 +987,15 @@ function getRegion(ip) {
   return geo ? geo.city + ", " + geo.region : "Unknown"
 }
 
+let MAX_AI_PER_2HOUR = 4
+
 app.post("/ai-query/", jsonParser, async function (req, res) {
   let requests = ALL_AI_REQUESTS.filter(
     (rq) =>
     (rq.time > Date.now() - 600000 * 2 &&
       rq.ip === req.headers['cf-connecting-ip'])
   );
-  if (requests.length >= 10) {
+  if (requests.length >= MAX_AI_PER_2HOUR) {
     res.send({
       success: true,
       response:
@@ -1035,7 +1037,7 @@ app.get("/description/:project/", jsonParser, async function (req, res) {
     (rq.time > Date.now() - 600000 * 2 &&
       rq.ip === req.headers['cf-connecting-ip'])
   );
-  if (requests.length >= 10) {
+  if (requests.length >= MAX_AI_PER_2HOUR) {
     res.send({
       success: true,
       response:
