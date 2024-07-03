@@ -15,7 +15,7 @@ var jsonParser = bodyParser.json();
 app = express();
 
 let Vibrant = require("node-vibrant");
-let START_TIME = 1677052800000
+let START_TIME = 1677052800000;
 
 const PRIVATE_KEY = atob(process.env.github);
 const APP_ID = "284321";
@@ -278,10 +278,11 @@ app.post("/uninstall/", jsonParser, async function (req, res) {
           },
           {
             name: "Installed",
-            value: `<t:${req.body.timeInstalled
+            value: `<t:${
+              req.body.timeInstalled
                 ? Math.round(Number(req.body.timeInstalled) / 1000).toString()
                 : "Unknown Time"
-              }>`,
+            }>`,
             inline: false,
           },
           {
@@ -498,7 +499,7 @@ app.post("/support/", jsonParser, async function (req, res) {
                 content: req.body.content,
               })
             );
-          } catch (err) { }
+          } catch (err) {}
         });
         res.send({
           success: true,
@@ -508,7 +509,11 @@ app.post("/support/", jsonParser, async function (req, res) {
           error: "Socket not found.",
         });
       }
-    } else if (req.body.type === "special-message" && req.body.user && req.body.content) {
+    } else if (
+      req.body.type === "special-message" &&
+      req.body.user &&
+      req.body.content
+    ) {
       var sockets = connections.filter((el) => el.user === req.body.user);
       if (sockets.length !== 0) {
         sockets.forEach(function (socket) {
@@ -521,7 +526,7 @@ app.post("/support/", jsonParser, async function (req, res) {
                 options: req.body.options,
               })
             );
-          } catch (err) { }
+          } catch (err) {}
         });
         res.send({
           success: true,
@@ -542,7 +547,7 @@ app.post("/support/", jsonParser, async function (req, res) {
                 features: "",
               })
             );
-          } catch (err) { }
+          } catch (err) {}
         });
         res.send({
           success: true,
@@ -571,7 +576,7 @@ app.post("/support/", jsonParser, async function (req, res) {
                   features: found.data.join("."),
                 })
               );
-            } catch (err) { }
+            } catch (err) {}
           });
           res.send({
             success: true,
@@ -596,7 +601,7 @@ app.post("/support/", jsonParser, async function (req, res) {
                 type: "reload",
               })
             );
-          } catch (err) { }
+          } catch (err) {}
         });
         res.send({
           success: true,
@@ -616,7 +621,7 @@ app.post("/support/", jsonParser, async function (req, res) {
                 type: "downloadSettings",
               })
             );
-          } catch (err) { }
+          } catch (err) {}
         });
         res.send({
           success: true,
@@ -979,21 +984,21 @@ let FAILED_RESPONSES = [
   "Sorry, but Scatt AI had to take a break. You can ask more questions again in a little bit.",
 ];
 
-const geoip = require('geoip-lite');
+const geoip = require("geoip-lite");
 
 function getRegion(ip) {
   let geo = geoip.lookup(ip);
 
-  return geo ? geo.city + ", " + geo.region : "Unknown"
+  return geo ? geo.city + ", " + geo.region : "Unknown";
 }
 
-let MAX_AI_PER_2HOUR = 4
+let MAX_AI_PER_2HOUR = 4;
 
 app.post("/ai-query/", jsonParser, async function (req, res) {
   let requests = ALL_AI_REQUESTS.filter(
     (rq) =>
-    (rq.time > Date.now() - 600000 * 2 &&
-      rq.ip === req.headers['cf-connecting-ip'])
+      rq.time > Date.now() - 600000 * 2 &&
+      rq.ip === req.headers["cf-connecting-ip"]
   );
   if (requests.length >= MAX_AI_PER_2HOUR) {
     res.send({
@@ -1009,15 +1014,17 @@ app.post("/ai-query/", jsonParser, async function (req, res) {
     ) {
       let data = await getSearch(req.body.search, req.body.username);
       ALL_AI_REQUESTS.push({
-        ip: req.headers['cf-connecting-ip'],
+        ip: req.headers["cf-connecting-ip"],
         time: Date.now(),
       });
       webhookClient.send({
         username: "ScratchTools AI Tracker",
-        content: `🪄 A user from ${getRegion(req.headers['cf-connecting-ip'])} just used Scatt AI for an AI query.`,
+        content: `🪄 A user from ${getRegion(
+          req.headers["cf-connecting-ip"]
+        )} just used Scatt AI for an AI query.`,
         avatarURL:
           "https://raw.githubusercontent.com/STForScratch/ScratchTools/main/extras/icons/beta/beta128.png",
-          threadId: "1253574210656141313"
+        threadId: "1253574210656141313",
       });
       res.send({
         success: true,
@@ -1034,31 +1041,44 @@ app.post("/ai-query/", jsonParser, async function (req, res) {
 app.get("/description/:project/", jsonParser, async function (req, res) {
   let requests = ALL_AI_REQUESTS.filter(
     (rq) =>
-    (rq.time > Date.now() - 600000 * 2 &&
-      rq.ip === req.headers['cf-connecting-ip'])
+      rq.time > Date.now() - 600000 * 2 &&
+      rq.ip === req.headers["cf-connecting-ip"]
   );
   if (requests.length >= MAX_AI_PER_2HOUR) {
     res.send({
       success: true,
       response:
-        FAILED_RESPONSES[Math.floor(Math.random() * FAILED_RESPONSES.length)] + ` If you would like us to eventually loosen the ratelimit and let you use this feature more often, please consider subscribing to our YouTube channel (youtube.com/@scratchtools), because AI does cost us money.`,
+        FAILED_RESPONSES[Math.floor(Math.random() * FAILED_RESPONSES.length)] +
+        ` If you would like us to eventually loosen the ratelimit and let you use this feature more often, please consider subscribing to our YouTube channel (youtube.com/@scratchtools), because AI does cost us money.`,
     });
   } else {
-    let project = await (await fetch(`https://trampoline.turbowarp.org/api/projects/${req.params.project}/`)).json()
-    if (
-      project && (project.description || project.instructions)
-    ) {
-      let data = await getDescription(project.description + "\n" + project.instructions);
+    let project = await (
+      await fetch(
+        `https://trampoline.turbowarp.org/api/projects/${req.params.project}/`
+      )
+    ).json();
+    if (project && (project.description || project.instructions)) {
+      let data = await getDescription(
+        project.description + "\n" + project.instructions
+      );
       ALL_AI_REQUESTS.push({
-        ip: req.headers['cf-connecting-ip'],
+        ip: req.headers["cf-connecting-ip"],
         time: Date.now(),
       });
       webhookClient.send({
         username: "ScratchTools AI Tracker",
-        content: `🪄 A user from ${getRegion(req.headers['cf-connecting-ip'])} just used Scatt AI to summarize a [project](https://scratch.mit.edu/projects/${req.params.project}/) description (${(project.description + "\n" + project.instructions).length.toString()} characters).`,
+        content: `🪄 A user from ${getRegion(
+          req.headers["cf-connecting-ip"]
+        )} just used Scatt AI to summarize a [project](https://scratch.mit.edu/projects/${
+          req.params.project
+        }/) description (${(
+          project.description +
+          "\n" +
+          project.instructions
+        ).length.toString()} characters).`,
         avatarURL:
           "https://raw.githubusercontent.com/STForScratch/ScratchTools/main/extras/icons/beta/beta128.png",
-          threadId: "1253574210656141313"
+        threadId: "1253574210656141313",
       });
       res.send({
         success: true,
@@ -1195,7 +1215,7 @@ app.get("/pfp/:id/", async function (req, res) {
 });
 
 app.get("/submission/", async function (req, res) {
-  res.redirect("https://youtu.be/sGfxaLhyQIs")
+  res.redirect("https://youtu.be/sGfxaLhyQIs");
   return;
   if (Date.now() > 1705237200000) {
     let SERVER_URL = "https://data.scratchtools.app";
@@ -1213,9 +1233,12 @@ app.get("/submission/", async function (req, res) {
           code: token,
           expired: false,
         });
-        let selected = await client.db("awards").collection("submissions-23").findOne({
-          user: data.username,
-        })
+        let selected = await client
+          .db("awards")
+          .collection("submissions-23")
+          .findOne({
+            user: data.username,
+          });
         res.render(path.join(__dirname, "/submission.html"), {
           token,
           username: data.username,
@@ -1236,7 +1259,7 @@ app.get("/submission/", async function (req, res) {
       );
     }
   } else {
-    res.sendFile(path.join(__dirname, "/closed.html"))
+    res.sendFile(path.join(__dirname, "/closed.html"));
   }
 });
 
@@ -1244,7 +1267,11 @@ app.post("/submit-project/", jsonParser, async function (req, res) {
   if (Date.now() > 1705237200000) {
     if (req.body.token && req.body.project) {
       try {
-        let data = await (await fetch(`https://trampoline.turbowarp.org/api/projects/${req.body.project}/`)).json()
+        let data = await (
+          await fetch(
+            `https://trampoline.turbowarp.org/api/projects/${req.body.project}/`
+          )
+        ).json();
         if (data.title !== undefined) {
           if (new Date(data.history.shared).getTime() > START_TIME) {
             let token = await client.db("verify").collection("tokens").findOne({
@@ -1253,59 +1280,64 @@ app.post("/submit-project/", jsonParser, async function (req, res) {
             });
             if (token) {
               if (token.user === data.author.username) {
-                await client.db("awards").collection("submissions-23").updateOne({
-                  user: data.author.username,
-                },
-                  {
-                    $set: {
-                      project: data.id.toString(),
+                await client
+                  .db("awards")
+                  .collection("submissions-23")
+                  .updateOne(
+                    {
                       user: data.author.username,
-                      time: Date.now(),
+                    },
+                    {
+                      $set: {
+                        project: data.id.toString(),
+                        user: data.author.username,
+                        time: Date.now(),
+                      },
+                    },
+                    {
+                      upsert: true,
                     }
-                  },
-                  {
-                    upsert: true,
-                  })
+                  );
                 res.send({
                   success: true,
-                })
+                });
               } else {
                 res.send({
-                  error: "Project does not belong to you."
-                })
+                  error: "Project does not belong to you.",
+                });
               }
             } else {
               res.send({
-                error: "Not logged in."
-              })
+                error: "Not logged in.",
+              });
             }
           } else {
             res.send({
-              error: "Project is too old."
-            })
+              error: "Project is too old.",
+            });
           }
         } else {
           res.send({
-            error: "Project is not shared."
-          })
+            error: "Project is not shared.",
+          });
         }
       } catch (err) {
         res.send({
-          error: "An error occurred."
-        })
+          error: "An error occurred.",
+        });
       }
     } else {
       res.send({
-        error: "Missing token or project."
-      })
+        error: "Missing token or project.",
+      });
     }
   }
-})
+});
 
 app.get("/user-projects/:user/", async function (req, res) {
-  let projects = await getProjects(req.params.user)
-  res.send(projects)
-})
+  let projects = await getProjects(req.params.user);
+  res.send(projects);
+});
 
 async function getProjects(user) {
   let projects = [];
@@ -1610,10 +1642,11 @@ app.post("/setdisplay/", jsonParser, async function (req, res) {
               }
             );
           webhookClient.send({
-            content: `**🪪 Display Name:** @${token.user
-              } just set their display name to \`${req.body.name
-                .replaceAll("\n", " ")
-                .replaceAll("`", "`")}\`.`,
+            content: `**🪪 Display Name:** @${
+              token.user
+            } just set their display name to \`${req.body.name
+              .replaceAll("\n", " ")
+              .replaceAll("`", "`")}\`.`,
             username: "ScratchTools Webserver Moderation",
             avatarURL:
               "https://raw.githubusercontent.com/STForScratch/ScratchTools/main/extras/icons/beta/beta128.png",
@@ -1627,10 +1660,11 @@ app.post("/setdisplay/", jsonParser, async function (req, res) {
           displayName: req.body.name,
         });
         webhookClient.send({
-          content: `**🪪 Display Name:** @${token.user
-            } just set their display name to \`${req.body.name
-              .replaceAll("\n", " ")
-              .replaceAll("`", "`")}\`.`,
+          content: `**🪪 Display Name:** @${
+            token.user
+          } just set their display name to \`${req.body.name
+            .replaceAll("\n", " ")
+            .replaceAll("`", "`")}\`.`,
           username: "ScratchTools Webserver Moderation",
           avatarURL:
             "https://raw.githubusercontent.com/STForScratch/ScratchTools/main/extras/icons/beta/beta128.png",
@@ -1652,21 +1686,21 @@ app.post("/setdisplay/", jsonParser, async function (req, res) {
   }
 });
 
-app.get("/pinned/:id/", async function(req, res) {
+app.get("/pinned/:id/", async function (req, res) {
   let pinned = await client.db("pins").collection("projects").findOne({
     projectId: req.params.id,
-  })
+  });
 
-  res.send(pinned || {})
-})
+  res.send(pinned || {});
+});
 
-const fs = require("fs")
+const fs = require("fs");
 
-app.get("/verified/:username/", function(req, res) {
-  let verified = JSON.parse(fs.readFileSync("./verified.json"))
+app.get("/verified/:username/", function (req, res) {
+  let verified = JSON.parse(fs.readFileSync("./verified.json"));
 
-  res.send({ verified: verified.includes(req.params.username.toLowerCase()) })
-})
+  res.send({ verified: verified.includes(req.params.username.toLowerCase()) });
+});
 
 app.post("/pin/", jsonParser, async function (req, res) {
   try {
@@ -1689,28 +1723,43 @@ app.post("/pin/", jsonParser, async function (req, res) {
       if (token) {
         if (BANNED_USERS.includes(token.user))
           return res.send({ error: "You've been banned. " });
-        let data = await (await fetch(`https://trampoline.turbowarp.org/api/projects/${req.body.project}/`)).json()
-        if (data?.author?.username?.toLowerCase() === token.user.toLowerCase() || token.user.toLowerCase() === "rgantzos") {
-          await client.db("pins").collection("projects").updateOne({
-            projectId: req.body.project,
-          },
-            {
-              $set: {
+        let data = await (
+          await fetch(
+            `https://trampoline.turbowarp.org/api/projects/${req.body.project}/`
+          )
+        ).json();
+        if (
+          data?.author?.username?.toLowerCase() === token.user.toLowerCase() ||
+          token.user.toLowerCase() === "rgantzos"
+        ) {
+          await client
+            .db("pins")
+            .collection("projects")
+            .updateOne(
+              {
                 projectId: req.body.project,
-                author: req.body.author,
-                content: req.body.content,
-                commentId: req.body.id,
-                time: Date.now(),
+              },
+              {
+                $set: {
+                  projectId: req.body.project,
+                  author: req.body.author,
+                  content: req.body.content,
+                  commentId: req.body.id,
+                  time: Date.now(),
+                },
+              },
+              {
+                upsert: true,
               }
-            },
-            {
-              upsert: true,
-            })
+            );
           webhookClient.send({
-            content: `**📌 Pinned Comment:** @${token.user
-              } just pinned a new comment to their project (${req.body.project}) with the content:  \`${req.body.content
-                .replaceAll("\n", " ")
-                .replaceAll("`", "`")}\`.`,
+            content: `**📌 Pinned Comment:** @${
+              token.user
+            } just pinned a new comment to their project (${
+              req.body.project
+            }) with the content:  \`${req.body.content
+              .replaceAll("\n", " ")
+              .replaceAll("`", "`")}\`.`,
             username: "ScratchTools Webserver Moderation",
             avatarURL:
               "https://raw.githubusercontent.com/STForScratch/ScratchTools/main/extras/icons/beta/beta128.png",
@@ -1736,10 +1785,167 @@ app.post("/pin/", jsonParser, async function (req, res) {
     }
   } catch (err) {
     res.send({
-      error: "An error occurred."
-    })
+      error: "An error occurred.",
+    });
   }
 });
+
+let ALLOWED_EMOJIS = [
+  "beaming",
+  "crying",
+  "fire",
+  "hands",
+  "heart-eyes",
+  "heart-face",
+  "hearts",
+  "laughing",
+  "popper",
+  "thumbsup",
+];
+
+app.post("/react/", jsonParser, async function (req, res) {
+  try {
+    if (
+      req.body.token &&
+      typeof req.body.token === "string" &&
+      req.body.project &&
+      typeof req.body.project === "string" &&
+      req.body.emoji &&
+      typeof req.body.emoji === "string" &&
+      ALLOWED_EMOJIS.includes(req.body.emoji)
+    ) {
+      let token = await client.db("verify").collection("tokens").findOne({
+        expired: false,
+        code: req.body.token,
+      });
+      if (token) {
+        if (BANNED_USERS.includes(token.user))
+          return res.send({ error: "You've been banned. " });
+        try {
+          let data = await (
+            await fetch(
+              `https://trampoline.turbowarp.org/api/projects/${req.body.project}/`
+            )
+          ).json();
+          if (data?.author) {
+            await client
+              .db("reactions")
+              .collection("projects")
+              .updateOne(
+                {
+                  project: req.body.project,
+                  user: token.user,
+                  emoji: req.body.emoji,
+                },
+                {
+                  $set: {
+                    project: req.body.project,
+                    user: token.user,
+                    emoji: req.body.emoji,
+                    time: Date.now(),
+                  },
+                },
+                {
+                  upsert: true,
+                }
+              );
+            res.send({
+              success: true,
+            });
+          } else {
+            res.send({
+              error: "This project doesn't exist.",
+            });
+          }
+        } catch (err) {
+          res.send({
+            error: "Project not found.",
+          });
+        }
+      } else {
+        res.send({
+          error: "Not found.",
+        });
+      }
+    } else {
+      res.send({
+        error: "Missing parameters.",
+      });
+    }
+  } catch (err) {
+    res.send({
+      error: "An error occurred.",
+    });
+  }
+});
+
+app.post("/unreact/", jsonParser, async function (req, res) {
+  try {
+    if (
+      req.body.token &&
+      typeof req.body.token === "string" &&
+      req.body.project &&
+      typeof req.body.project === "string" &&
+      req.body.emoji &&
+      typeof req.body.emoji === "string" &&
+      ALLOWED_EMOJIS.includes(req.body.emoji)
+    ) {
+      let token = await client.db("verify").collection("tokens").findOne({
+        expired: false,
+        code: req.body.token,
+      });
+      if (token) {
+        if (BANNED_USERS.includes(token.user))
+          return res.send({ error: "You've been banned. " });
+        try {
+          let data = await (
+            await fetch(
+              `https://trampoline.turbowarp.org/api/projects/${req.body.project}/`
+            )
+          ).json();
+          if (data?.author) {
+            await client.db("reactions").collection("projects").deleteOne({
+              project: req.body.project,
+              user: token.user,
+              emoji: req.body.emoji,
+            });
+            res.send({
+              success: true,
+            });
+          } else {
+            res.send({
+              error: "This project doesn't exist.",
+            });
+          }
+        } catch (err) {
+          res.send({
+            error: "Project not found.",
+          });
+        }
+      } else {
+        res.send({
+          error: "Not found.",
+        });
+      }
+    } else {
+      res.send({
+        error: "Missing parameters.",
+      });
+    }
+  } catch (err) {
+    res.send({
+      error: "An error occurred.",
+    });
+  }
+});
+
+app.get("/reactions/:project/", async function(req, res) {
+  let data = await client.db("reactions").collection("projects").find({
+    project: req.body.project,
+  }).toArray();
+
+  res.send(data)
+})
 
 app.post("/unpin/", jsonParser, async function (req, res) {
   try {
@@ -1756,11 +1962,18 @@ app.post("/unpin/", jsonParser, async function (req, res) {
       if (token) {
         if (BANNED_USERS.includes(token.user))
           return res.send({ error: "You've been banned. " });
-        let data = await (await fetch(`https://trampoline.turbowarp.org/api/projects/${req.body.project}/`)).json()
-        if (data?.author?.username?.toLowerCase() === token.user.toLowerCase() || token.user.toLowerCase() === "rgantzos") {
+        let data = await (
+          await fetch(
+            `https://trampoline.turbowarp.org/api/projects/${req.body.project}/`
+          )
+        ).json();
+        if (
+          data?.author?.username?.toLowerCase() === token.user.toLowerCase() ||
+          token.user.toLowerCase() === "rgantzos"
+        ) {
           await client.db("pins").collection("projects").deleteOne({
             projectId: req.body.project,
-          })
+          });
           res.send({
             success: true,
           });
@@ -1781,8 +1994,8 @@ app.post("/unpin/", jsonParser, async function (req, res) {
     }
   } catch (err) {
     res.send({
-      error: "An error occurred."
-    })
+      error: "An error occurred.",
+    });
   }
 });
 
