@@ -1941,7 +1941,7 @@ app.post("/unreact/", jsonParser, async function (req, res) {
 
 app.get("/reactions/:project/", async function(req, res) {
   let data = await client.db("reactions").collection("projects").find({
-    project: req.body.project,
+    project: req.params.project,
   }).toArray();
 
   res.send(data)
