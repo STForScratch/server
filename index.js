@@ -1849,9 +1849,10 @@ app.post("/react/", jsonParser, async function (req, res) {
                   upsert: true,
                 }
               );
-            res.send({
-              success: true,
-            });
+              res.send({
+                success: true,
+                data: await getReactions(req.body.project),
+              });
           } else {
             res.send({
               error: "This project doesn't exist.",
@@ -1911,6 +1912,7 @@ app.post("/unreact/", jsonParser, async function (req, res) {
             });
             res.send({
               success: true,
+              data: await getReactions(req.body.project),
             });
           } else {
             res.send({
@@ -1939,10 +1941,16 @@ app.post("/unreact/", jsonParser, async function (req, res) {
   }
 });
 
-app.get("/reactions/:project/", async function(req, res) {
+async function getReactions(project) {
   let data = await client.db("reactions").collection("projects").find({
-    project: req.params.project,
+    project,
   }).toArray();
+
+  return data
+}
+
+app.get("/reactions/:project/", async function(req, res) {
+    let data = await getReactions(req.params.project)
 
   res.send(data)
 })
