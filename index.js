@@ -1849,10 +1849,10 @@ app.post("/react/", jsonParser, async function (req, res) {
                   upsert: true,
                 }
               );
-              res.send({
-                success: true,
-                data: await getReactions(req.body.project),
-              });
+            res.send({
+              success: true,
+              data: await getReactions(req.body.project),
+            });
           } else {
             res.send({
               error: "This project doesn't exist.",
@@ -1878,6 +1878,89 @@ app.post("/react/", jsonParser, async function (req, res) {
       error: "An error occurred.",
     });
   }
+});
+
+let fonts = JSON.parse(fs.readFileSync("./fonts.json"));
+let fontData = {};
+
+async function loadFontData() {
+  for (var i in fonts) {
+    let data = await getTTF(fonts[i]);
+
+    fontData[fonts[i]] = await ttfToSvg(data, fonts[i]);
+  }
+}
+loadFontData();
+
+const opentype = require("opentype.js");
+
+async function ttfToSvg(buffer, text) {
+  const font = opentype.parse(buffer);
+    const svgText = createSVGFromText(font, text);
+    return svgText;
+}
+
+function createSVGFromText(font, text) {
+  let width = font.getAdvanceWidth(text, 72)
+  const path = font.getPath(text, 0, 100, 72);
+  const svgPath = path.toSVG();
+  const svg = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="${width.toString()}" height="150">
+   ${svgPath}
+  </svg>
+    `;
+  return svg;
+}
+
+const woff2Rs = require("@woff2/woff2-rs");
+
+app.get("/fonts/", function (req, res) {
+  res.send(fonts);
+});
+
+app.get("/font/:name/", async (req, res) => {
+  let data = await getTTF(req.params.name);
+
+  res.setHeader("Content-Type", "font/ttf");
+  res.setHeader("Content-Disposition", 'attachment; filename="font.ttf"');
+
+  res.send(data);
+});
+
+async function getTTF(name) {
+  let woff2Url = (
+    await (
+      await fetch(`https://fonts.googleapis.com/css2?family=${name}`)
+    ).text()
+  )
+    .split("url(")[1]
+    .split(")")[0];
+
+  if (woff2Url?.endsWith(".ttf")) {
+    const response = await fetch(woff2Url);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch TTF file: ${response.statusText}`);
+    }
+    const woff2Data = await response.arrayBuffer();
+
+    return woff2Data;
+  } else if (woff2Url?.endsWith(".woff2")) {
+    // Fetch the WOFF2 file
+    const response = await fetch(woff2Url);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch WOFF2 file: ${response.statusText}`);
+    }
+    const woff2Data = await response.arrayBuffer();
+
+    const outputBuffer = woff2Rs.decode(woff2Data); // output TTF buffer
+
+    return outputBuffer;
+  }
+}
+
+app.get("/font/image/:font/", function (req, res) {
+  res.set("Content-Type", "image/svg+xml");
+  res.send(fontData[req.params.font]);
 });
 
 app.post("/unreact/", jsonParser, async function (req, res) {
@@ -1942,18 +2025,22 @@ app.post("/unreact/", jsonParser, async function (req, res) {
 });
 
 async function getReactions(project) {
-  let data = await client.db("reactions").collection("projects").find({
-    project,
-  }).toArray();
+  let data = await client
+    .db("reactions")
+    .collection("projects")
+    .find({
+      project,
+    })
+    .toArray();
 
-  return data
+  return data;
 }
 
-app.get("/reactions/:project/", async function(req, res) {
-    let data = await getReactions(req.params.project)
+app.get("/reactions/:project/", async function (req, res) {
+  let data = await getReactions(req.params.project);
 
-  res.send(data)
-})
+  res.send(data);
+});
 
 app.post("/unpin/", jsonParser, async function (req, res) {
   try {
