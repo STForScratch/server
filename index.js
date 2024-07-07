@@ -1919,7 +1919,7 @@ app.get("/fonts/", function (req, res) {
 });
 
 app.get("/font/:name/", async (req, res) => {
-  let data = await getTTF(req.params.name);
+  let data = await getTTF(req.params.name.replace(".ttf", ""), true);
 
   res.setHeader("Content-Type", "font/ttf");
   res.setHeader("Content-Disposition", 'attachment; filename="font.ttf"');
@@ -1927,7 +1927,7 @@ app.get("/font/:name/", async (req, res) => {
   res.send(data);
 });
 
-async function getTTF(name) {
+async function getTTF(name, buffer) {
   let woff2Url = (
     await (
       await fetch(`https://fonts.googleapis.com/css2?family=${name}`)
@@ -1941,7 +1941,7 @@ async function getTTF(name) {
     if (!response.ok) {
       throw new Error(`Failed to fetch TTF file: ${response.statusText}`);
     }
-    const woff2Data = await response.arrayBuffer();
+    const woff2Data = buffer ? await response.buffer() : await response.arrayBuffer();
 
     return woff2Data;
   } else if (woff2Url?.endsWith(".woff2")) {
@@ -1950,7 +1950,7 @@ async function getTTF(name) {
     if (!response.ok) {
       throw new Error(`Failed to fetch WOFF2 file: ${response.statusText}`);
     }
-    const woff2Data = await response.arrayBuffer();
+    const woff2Data = buffer ? await response.buffer() : await response.arrayBuffer();
 
     const outputBuffer = woff2Rs.decode(woff2Data); // output TTF buffer
 
