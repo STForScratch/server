@@ -1694,6 +1694,10 @@ app.get("/pinned/:id/", async function (req, res) {
   res.send(pinned || {});
 });
 
+app.get("/featured/", function(req, res) {
+  res.sendFile(path.join(__dirname, "/featured.json"))
+})
+
 const fs = require("fs");
 
 app.get("/verified/:username/", function (req, res) {
