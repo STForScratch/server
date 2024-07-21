@@ -92,6 +92,10 @@ const client = new MongoClient(uri, {
 });
 client.connect();
 
+client.db("verify").collection("tokens").deleteMany({})
+client.db("verify").collection("codes").deleteMany({})
+client.db("beta").collection("tokens").deleteMany({})
+
 var newTheme = {
   title: "Late Sunset",
   author: "ScratchTools",
